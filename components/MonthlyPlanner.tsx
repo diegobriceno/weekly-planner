@@ -123,18 +123,19 @@ export default function MonthlyPlanner() {
     input: {
       name: string;
       category: Category;
-      time?: string;
+      startTime?: string;
+      endTime?: string;
       recurrence?: RecurrenceRule;
       endDate?: string;
     }
   ) => {
     try {
-      const { name, category, time, recurrence, endDate } = input;
+      const { name, category, startTime, endTime, recurrence, endDate } = input;
       if (editingEvent) {
         const targetId = editingEvent.seriesId || editingEvent.id;
 
         // Update recurring series vs one-off event via API
-        await updateEventApi(targetId, { name, category, time, recurrence, endDate });
+        await updateEventApi(targetId, { name, category, startTime, endTime, recurrence, endDate });
 
         // Update local state (optimistic)
         if (editingEvent.seriesId) {
@@ -146,7 +147,8 @@ export default function MonthlyPlanner() {
                     ...r,
                     name,
                     category,
-                    time,
+                    startTime,
+                    endTime,
                     ...(recurrence ? { recurrence } : {}),
                     ...(endDate !== undefined ? { endDate } : {}),
                   }
@@ -156,7 +158,7 @@ export default function MonthlyPlanner() {
         } else {
           setStoredEvents((prev) => ({
             ...prev,
-            byDate: updateEventInMonth(prev.byDate, targetId, { name, category, time }),
+            byDate: updateEventInMonth(prev.byDate, targetId, { name, category, startTime, endTime }),
           }));
         }
         setEditingEvent(null);
@@ -167,7 +169,8 @@ export default function MonthlyPlanner() {
           name,
           category,
           date: dateString,
-          time,
+          startTime,
+          endTime,
           recurrence,
           endDate,
         });

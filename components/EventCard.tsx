@@ -5,6 +5,7 @@ interface EventCardProps {
   onDelete: (id: string) => void;
   onEdit: (event: Event) => void;
   compact?: boolean;
+  timeGrid?: boolean;
 }
 
 const categoryColors: Record<string, { bg: string; text: string; dot: string; border: string }> = {
@@ -17,10 +18,46 @@ const categoryColors: Record<string, { bg: string; text: string; dot: string; bo
   other: { bg: 'bg-gray-50', text: 'text-gray-700', dot: 'bg-gray-500', border: 'border-gray-200' },
 };
 
-export default function EventCard({ event, onDelete, onEdit, compact = false }: EventCardProps) {
+export default function EventCard({ event, onDelete, onEdit, compact = false, timeGrid = false }: EventCardProps) {
   const colors = categoryColors[event.category];
   const padding = compact ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm';
 
+  const timeDisplay = event.startTime && event.endTime
+    ? `${event.startTime} - ${event.endTime}`
+    : event.startTime || '';
+
+  // Time grid mode: vertical layout with full height
+  if (timeGrid) {
+    return (
+      <div
+        onClick={() => onEdit(event)}
+        className={`${colors.bg} ${colors.border} border-l-4 border-t border-r border-b rounded-sm px-1 py-1 h-full group hover:shadow-md transition-all cursor-pointer overflow-hidden flex flex-col`}
+      >
+        <div className="flex items-start justify-between gap-1 mb-0.5">
+          <p className={`text-xs font-semibold ${colors.text} leading-tight line-clamp-2`}>
+            {event.name}
+          </p>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(event.seriesId || event.id);
+            }}
+            className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-600 text-xs flex-shrink-0 -mt-0.5"
+            aria-label="Delete event"
+          >
+            ✕
+          </button>
+        </div>
+        {timeDisplay && (
+          <p className={`text-xs ${colors.text} opacity-75 leading-tight`}>
+            {timeDisplay}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // Regular mode: horizontal compact layout
   return (
     <div
       onClick={() => onEdit(event)}
@@ -32,9 +69,9 @@ export default function EventCard({ event, onDelete, onEdit, compact = false }: 
             <p className={`text-xs font-medium ${colors.text} truncate`}>
               {event.name}
             </p>
-            {event.time && (
+            {timeDisplay && (
               <span className={`text-xs font-bold ${colors.text}`}>
-                {event.time}
+                {timeDisplay}
               </span>
             )}
           </div>

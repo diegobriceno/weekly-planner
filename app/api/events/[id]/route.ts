@@ -12,10 +12,11 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, category, time, recurrence, endDate } = body as {
+    const { name, category, startTime, endTime, recurrence, endDate } = body as {
       name?: string;
       category?: string;
-      time?: string;
+      startTime?: string;
+      endTime?: string;
       recurrence?: RecurrenceRule;
       endDate?: string;
     };
@@ -30,7 +31,8 @@ export async function PUT(
         ...events.recurring[recurringIndex],
         ...(name !== undefined ? { name } : {}),
         ...(category !== undefined ? { category: category as Category } : {}),
-        ...(time !== undefined ? { time } : {}),
+        ...(startTime !== undefined ? { startTime } : {}),
+        ...(endTime !== undefined ? { endTime } : {}),
         ...(recurrence !== undefined ? { recurrence } : {}),
         ...(endDate !== undefined ? { endDate } : {}),
       };
@@ -47,7 +49,8 @@ export async function PUT(
           ...events.byDate[date][eventIndex],
           ...(name !== undefined ? { name } : {}),
           ...(category !== undefined ? { category: category as Category } : {}),
-          ...(time !== undefined ? { time } : {}),
+          ...(startTime !== undefined ? { startTime } : {}),
+          ...(endTime !== undefined ? { endTime } : {}),
         };
         found = true;
         break;

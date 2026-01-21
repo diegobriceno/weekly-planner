@@ -24,7 +24,8 @@ export interface Event {
   name: string;
   category: Category;
   date: string; // ISO date format: YYYY-MM-DD
-  time?: string; // Optional time in HH:MM format
+  startTime?: string; // Optional start time in HH:MM format
+  endTime?: string; // Optional end time in HH:MM format
   /** If present, this event is an instance of a recurring series. */
   seriesId?: string;
 }
@@ -38,7 +39,8 @@ export interface RecurringEvent {
   id: string;
   name: string;
   category: Category;
-  time?: string;
+  startTime?: string; // Optional start time in HH:MM format
+  endTime?: string; // Optional end time in HH:MM format
   /** Inclusive start date (YYYY-MM-DD). */
   startDate: string;
   /** Inclusive end date (YYYY-MM-DD). If omitted, no end limit. */

@@ -18,7 +18,8 @@ export async function createEventApi(input: {
   name: string;
   category: Category;
   date: string;
-  time?: string;
+  startTime?: string;
+  endTime?: string;
   recurrence?: RecurrenceRule;
   endDate?: string;
 }): Promise<Event | RecurringEvent> {
@@ -34,7 +35,8 @@ export async function updateEventApi(
   updates: {
     name?: string;
     category?: Category;
-    time?: string;
+    startTime?: string;
+    endTime?: string;
     recurrence?: RecurrenceRule;
     endDate?: string;
   }

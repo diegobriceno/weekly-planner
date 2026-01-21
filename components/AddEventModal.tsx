@@ -12,7 +12,8 @@ interface AddEventModalProps {
   onSubmit: (input: {
     name: string;
     category: Category;
-    time?: string;
+    startTime?: string;
+    endTime?: string;
     recurrence?: RecurrenceRule;
     endDate?: string;
   }) => void;
@@ -29,6 +30,84 @@ const weekDayOptions: { label: string; value: number }[] = [
   { label: 'Saturday', value: 6 },
 ];
 
+// Generate hour options for start time (6am to 9pm - cannot start at 10pm)
+const startHourOptions = Array.from({ length: 16 }, (_, i) => {
+  const hour = i + 6; // 6 to 21
+  const display = hour === 0 ? '12 AM'
+    : hour < 12 ? `${hour} AM`
+    : hour === 12 ? '12 PM'
+    : `${hour - 12} PM`;
+  return { value: hour.toString().padStart(2, '0'), label: display };
+});
+
+// Generate hour options for end time (6am to 10pm)
+const endHourOptions = Array.from({ length: 17 }, (_, i) => {
+  const hour = i + 6; // 6 to 22
+  const display = hour === 0 ? '12 AM'
+    : hour < 12 ? `${hour} AM`
+    : hour === 12 ? '12 PM'
+    : `${hour - 12} PM`;
+  return { value: hour.toString().padStart(2, '0'), label: display };
+});
+
+// Minute options: 00, 15, 30, 45
+const minuteOptions = [
+  { value: '00', label: '00' },
+  { value: '15', label: '15' },
+  { value: '30', label: '30' },
+  { value: '45', label: '45' },
+];
+
+// Helper to parse time string into hour and minute
+const parseTime = (time: string): { hour: string; minute: string } => {
+  if (!time) return { hour: '', minute: '00' };
+  const [h, m] = time.split(':');
+  return { hour: h, minute: m || '00' };
+};
+
+// Helper to combine hour and minute into time string
+const combineTime = (hour: string, minute: string): string => {
+  if (!hour) return '';
+  return `${hour}:${minute}`;
+};
+
+// Helper to calculate end time (1 hour after start)
+const calculateEndTime = (startHour: string, startMinute: string): { hour: string; minute: string } => {
+  if (!startHour) return { hour: '', minute: '00' };
+
+  const startHourNum = parseInt(startHour, 10);
+  const startMinuteNum = parseInt(startMinute, 10);
+
+  // Add 1 hour
+  let endHourNum = startHourNum + 1;
+  const endMinuteNum = startMinuteNum;
+
+  // Clamp to maximum 10 PM (22:00)
+  if (endHourNum > 22) {
+    endHourNum = 22;
+  }
+
+  return {
+    hour: endHourNum.toString().padStart(2, '0'),
+    minute: endMinuteNum.toString().padStart(2, '0'),
+  };
+};
+
+// Helper to validate that end time is after start time
+const isEndTimeValid = (
+  startHour: string,
+  startMinute: string,
+  endHour: string,
+  endMinute: string
+): boolean => {
+  if (!startHour || !endHour) return true; // Don't validate if either is empty
+
+  const startMinutes = parseInt(startHour, 10) * 60 + parseInt(startMinute, 10);
+  const endMinutes = parseInt(endHour, 10) * 60 + parseInt(endMinute, 10);
+
+  return endMinutes > startMinutes;
+};
+
 export default function AddEventModal({
   isOpen,
   selectedDate,
@@ -39,21 +118,65 @@ export default function AddEventModal({
 }: AddEventModalProps) {
   const [name, setName] = useState('');
   const [category, setCategory] = useState<Category>('personal');
-  const [time, setTime] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [startHour, setStartHour] = useState('');
+  const [startMinute, setStartMinute] = useState('00');
+  const [endHour, setEndHour] = useState('');
+  const [endMinute, setEndMinute] = useState('00');
   const [repeatMode, setRepeatMode] = useState<'none' | 'day_of_week' | 'day_of_month'>('none');
   const [repeatDayOfWeek, setRepeatDayOfWeek] = useState<number>(1);
   const [repeatDayOfMonth, setRepeatDayOfMonth] = useState<number>(1);
   const [endDate, setEndDate] = useState<string>('');
 
+  // Handler for start hour change - auto-calculates end time
+  const handleStartHourChange = (newStartHour: string) => {
+    setStartHour(newStartHour);
+    if (newStartHour) {
+      const calculatedEnd = calculateEndTime(newStartHour, startMinute);
+      setEndHour(calculatedEnd.hour);
+      setEndMinute(calculatedEnd.minute);
+    }
+  };
+
+  // Handler for start minute change - auto-calculates end time
+  const handleStartMinuteChange = (newStartMinute: string) => {
+    setStartMinute(newStartMinute);
+    if (startHour) {
+      const calculatedEnd = calculateEndTime(startHour, newStartMinute);
+      setEndHour(calculatedEnd.hour);
+      setEndMinute(calculatedEnd.minute);
+    }
+  };
+
+  // Update combined time when hour/minute change
   useEffect(() => {
-    /* eslint-disable react-hooks/set-state-in-effect */
+    setStartTime(combineTime(startHour, startMinute));
+  }, [startHour, startMinute]);
+
+  useEffect(() => {
+    setEndTime(combineTime(endHour, endMinute));
+  }, [endHour, endMinute]);
+
+  useEffect(() => {
     const seriesId = editingEvent?.seriesId || editingEvent?.id || null;
     const series = seriesId ? recurringSeries.find((r) => r.id === seriesId) : undefined;
 
     if (editingEvent) {
       setName(editingEvent.name);
       setCategory(editingEvent.category);
-      setTime(editingEvent.time || '');
+
+      // Parse start time
+      const parsedStart = parseTime(editingEvent.startTime || '');
+      setStartHour(parsedStart.hour);
+      setStartMinute(parsedStart.minute);
+      setStartTime(editingEvent.startTime || '');
+
+      // Parse end time
+      const parsedEnd = parseTime(editingEvent.endTime || '');
+      setEndHour(parsedEnd.hour);
+      setEndMinute(parsedEnd.minute);
+      setEndTime(editingEvent.endTime || '');
 
       if (series) {
         if (series.recurrence.kind === 'day_of_week') {
@@ -71,7 +194,13 @@ export default function AddEventModal({
     } else {
       setName('');
       setCategory('personal');
-      setTime('');
+      // Set default time: 9:00 AM - 10:00 AM
+      setStartHour('09');
+      setStartMinute('00');
+      setEndHour('10');
+      setEndMinute('00');
+      setStartTime('09:00');
+      setEndTime('10:00');
       setRepeatMode('none');
       setEndDate('');
       // defaults based on selectedDate (if present)
@@ -83,14 +212,17 @@ export default function AddEventModal({
         setRepeatDayOfMonth(1);
       }
     }
-    /* eslint-enable react-hooks/set-state-in-effect */
   }, [editingEvent, recurringSeries, selectedDate]);
 
   if (!isOpen || !selectedDate) return null;
 
+  // Validate that end time is after start time
+  const timeIsValid = isEndTimeValid(startHour, startMinute, endHour, endMinute);
+  const hasTimeError = startHour && endHour && !timeIsValid;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim()) {
+    if (name.trim() && startHour && endHour && timeIsValid) {
       const trimmedName = name.trim();
 
       const seriesId = editingEvent?.seriesId || editingEvent?.id || null;
@@ -108,13 +240,19 @@ export default function AddEventModal({
       onSubmit({
         name: trimmedName,
         category,
-        time: time || undefined,
+        startTime: startTime, // Required now
+        endTime: endTime, // Required now
         recurrence,
         endDate: endDate || undefined,
       });
       setName('');
       setCategory('personal');
-      setTime('');
+      setStartHour('');
+      setStartMinute('00');
+      setEndHour('');
+      setEndMinute('00');
+      setStartTime('');
+      setEndTime('');
       setRepeatMode('none');
       setEndDate('');
       onClose();
@@ -167,18 +305,86 @@ export default function AddEventModal({
             />
           </div>
 
-          <div>
-            <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-2">
-              Time (Optional)
-            </label>
-            <input
-              type="time"
-              id="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Start Time <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <select
+                  value={startHour}
+                  onChange={(e) => handleStartHourChange(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                >
+                  <option value="">Hour</option>
+                  {startHourOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={startMinute}
+                  onChange={(e) => handleStartMinuteChange(e.target.value)}
+                  disabled={!startHour}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-400"
+                >
+                  {minuteOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                End Time <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <select
+                  value={endHour}
+                  onChange={(e) => setEndHour(e.target.value)}
+                  required
+                  className={`w-full px-3 py-2 border rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:border-transparent ${
+                    hasTimeError
+                      ? 'border-red-300 focus:ring-red-500'
+                      : 'border-gray-300 focus:ring-gray-900'
+                  }`}
+                >
+                  <option value="">Hour</option>
+                  {endHourOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={endMinute}
+                  onChange={(e) => setEndMinute(e.target.value)}
+                  disabled={!endHour}
+                  className={`w-full px-3 py-2 border rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-400 ${
+                    hasTimeError && endHour
+                      ? 'border-red-300 focus:ring-red-500'
+                      : 'border-gray-300 focus:ring-gray-900'
+                  }`}
+                >
+                  {minuteOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
+
+          {hasTimeError && (
+            <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              End time must be after start time
+            </div>
+          )}
 
           <div>
             <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
@@ -276,7 +482,8 @@ export default function AddEventModal({
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors font-medium"
+              disabled={!name.trim() || !startHour || !endHour || !timeIsValid}
+              className="flex-1 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {isEditing ? 'Update Event' : 'Add Event'}
             </button>

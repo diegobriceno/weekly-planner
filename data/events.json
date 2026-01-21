@@ -5,40 +5,47 @@
         "id": "event-1768959498958-h3yfblmg2",
         "name": "Performance review",
         "category": "work",
-        "date": "2026-01-21"
+        "date": "2026-01-21",
+        "startTime": "10:15",
+        "endTime": "11:30"
       }
     ],
-    "2026-03-12": [
+    "2026-01-25": [
       {
-        "id": "event-1768996313792-oj7gxoh39",
-        "name": "testing",
+        "id": "event-1769008684077-kf3iezjwg",
+        "name": "Ensayo Baile",
+        "category": "sophi",
+        "date": "2026-01-25",
+        "startTime": "19:00",
+        "endTime": "20:30"
+      }
+    ],
+    "2026-01-22": [
+      {
+        "id": "event-1769009601681-8z5hvz967",
+        "name": "caro",
+        "category": "personal",
+        "date": "2026-01-22",
+        "startTime": "09:00",
+        "endTime": "10:00"
+      },
+      {
+        "id": "event-1769009609842-87287uljx",
+        "name": "sophi",
+        "category": "sophi",
+        "date": "2026-01-22",
+        "startTime": "09:00",
+        "endTime": "10:00"
+      },
+      {
+        "id": "event-1769009615834-m0pcmykr1",
+        "name": "benja",
         "category": "benja",
-        "date": "2026-03-12"
+        "date": "2026-01-22",
+        "startTime": "09:00",
+        "endTime": "10:00"
       }
     ]
   },
-  "recurring": [
-    {
-      "id": "rec-1768996193064-9to74vfdl",
-      "name": "BCP",
-      "category": "home",
-      "startDate": "2026-01-22",
-      "endDate": "2027-01-21",
-      "recurrence": {
-        "kind": "day_of_month",
-        "day": 24
-      }
-    },
-    {
-      "id": "rec-1768996261794-ajecapisf",
-      "name": "Estudiar ingles",
-      "category": "projects",
-      "startDate": "2026-01-21",
-      "endDate": "2026-03-28",
-      "recurrence": {
-        "kind": "day_of_week",
-        "day": 1
-      }
-    }
-  ]
+  "recurring": []
 }

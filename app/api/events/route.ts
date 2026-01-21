@@ -24,11 +24,12 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, category, date, time, recurrence, endDate } = body as {
+    const { name, category, date, startTime, endTime, recurrence, endDate } = body as {
       name?: string;
       category?: string;
       date?: string;
-      time?: string;
+      startTime?: string;
+      endTime?: string;
       recurrence?: RecurrenceRule;
       endDate?: string;
     };
@@ -50,7 +51,8 @@ export async function POST(request: NextRequest) {
         id: `rec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         name,
         category: category as Category,
-        time,
+        startTime,
+        endTime,
         startDate: date,
         endDate,
         recurrence,
@@ -66,7 +68,8 @@ export async function POST(request: NextRequest) {
       name,
       category: category as Category,
       date,
-      time,
+      startTime,
+      endTime,
     };
 
     if (!stored.byDate[date]) {

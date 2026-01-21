@@ -4,14 +4,16 @@ export function createEvent(
   name: string,
   category: Category,
   date: string,
-  time?: string
+  startTime?: string,
+  endTime?: string
 ): Event {
   return {
     id: generateEventId(),
     name,
     category,
     date,
-    time,
+    startTime,
+    endTime,
   };
 }
 
@@ -26,13 +28,13 @@ export function addEventToMonth(monthEvents: MonthEvents, event: Event): MonthEv
 export function updateEventInMonth(
   monthEvents: MonthEvents,
   eventId: string,
-  updates: { name: string; category: Category; time?: string }
+  updates: { name: string; category: Category; startTime?: string; endTime?: string }
 ): MonthEvents {
   const updatedMonth: MonthEvents = {};
 
   Object.keys(monthEvents).forEach((date) => {
     updatedMonth[date] = monthEvents[date].map((event) =>
-      event.id === eventId ? { ...event, name: updates.name, category: updates.category, time: updates.time } : event
+      event.id === eventId ? { ...event, name: updates.name, category: updates.category, startTime: updates.startTime, endTime: updates.endTime } : event
     );
   });
 
@@ -78,8 +80,8 @@ function makeInstanceId(seriesId: string, date: string): string {
 
 function sortEventsByTime(events: Event[]): Event[] {
   return [...events].sort((a, b) => {
-    const at = a.time || '';
-    const bt = b.time || '';
+    const at = a.startTime || '';
+    const bt = b.startTime || '';
     if (at === bt) return a.name.localeCompare(b.name);
     // empty time goes last
     if (!at) return 1;
@@ -120,7 +122,8 @@ export function expandRecurringEventsForDates(
         name: series.name,
         category: series.category,
         date: dateKey,
-        time: series.time,
+        startTime: series.startTime,
+        endTime: series.endTime,
       };
 
       if (!out[dateKey]) out[dateKey] = [];
@@ -244,4 +247,114 @@ export function getWeekDays(year: number, month: number, weekStart: Date): Date[
 export function getCurrentWeekDays(): Date[] {
   const today = new Date();
   return getWeekDays(today.getFullYear(), today.getMonth(), today);
+}
+
+// ============================================================================
+// Time utilities for time-grid positioning
+// ============================================================================
+
+/**
+ * Converts time string (HH:MM) to minutes since midnight.
+ */
+export function parseTimeToMinutes(time: string): number {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+}
+
+/**
+ * Formats hour number (0-23) to display format (e.g., "6 AM", "2 PM").
+ */
+export function formatHourDisplay(hour: number): string {
+  if (hour === 0) return '12 AM';
+  if (hour < 12) return `${hour} AM`;
+  if (hour === 12) return '12 PM';
+  return `${hour - 12} PM`;
+}
+
+/**
+ * Calculates CSS position for an event in the time grid.
+ * Returns top and height as percentages.
+ */
+export function calculateEventPosition(
+  startTime: string,
+  endTime: string,
+  dayStartHour = 6,
+  dayEndHour = 22
+) {
+  const startMinutes = parseTimeToMinutes(startTime);
+  const endMinutes = parseTimeToMinutes(endTime);
+
+  const dayStartMinutes = dayStartHour * 60;
+  const dayEndMinutes = dayEndHour * 60;
+  const totalDayMinutes = dayEndMinutes - dayStartMinutes;
+
+  const topPercent = Math.max(0, ((startMinutes - dayStartMinutes) / totalDayMinutes) * 100);
+  const duration = endMinutes - startMinutes;
+  const heightPercent = Math.max(2, (duration / totalDayMinutes) * 100); // Min 2% height
+
+  return {
+    top: `${topPercent}%`,
+    height: `${heightPercent}%`,
+  };
+}
+
+/**
+ * Checks if two events overlap in time.
+ */
+export function eventsOverlap(event1: Event, event2: Event): boolean {
+  if (!event1.startTime || !event1.endTime || !event2.startTime || !event2.endTime) {
+    return false;
+  }
+  const start1 = parseTimeToMinutes(event1.startTime);
+  const end1 = parseTimeToMinutes(event1.endTime);
+  const start2 = parseTimeToMinutes(event2.startTime);
+  const end2 = parseTimeToMinutes(event2.endTime);
+
+  return start1 < end2 && start2 < end1;
+}
+
+/**
+ * Groups overlapping events into separate columns.
+ */
+export function groupOverlappingEvents(events: Event[]): Event[][] {
+  const groups: Event[][] = [];
+  const timedEvents = events.filter(e => e.startTime && e.endTime);
+  const sorted = [...timedEvents].sort((a, b) =>
+    (a.startTime || '00:00').localeCompare(b.startTime || '00:00')
+  );
+
+  for (const event of sorted) {
+    let placed = false;
+    for (const group of groups) {
+      if (!group.some(e => eventsOverlap(e, event))) {
+        group.push(event);
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) {
+      groups.push([event]);
+    }
+  }
+
+  return groups;
+}
+
+/**
+ * Calculates width and left position for an event considering overlaps.
+ */
+export function calculateEventLayout(event: Event, allDayEvents: Event[]) {
+  const overlapGroups = groupOverlappingEvents(allDayEvents);
+
+  for (const group of overlapGroups) {
+    const index = group.findIndex(e => e.id === event.id);
+    if (index !== -1) {
+      const count = Math.min(group.length, 3); // Max 3 side-by-side
+      const width = 100 / count;
+      const left = width * Math.min(index, count - 1);
+      return { width: `${width}%`, left: `${left}%` };
+    }
+  }
+
+  return { width: '100%', left: '0%' };
 }
