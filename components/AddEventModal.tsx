@@ -1,41 +1,42 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Category, Task } from '@/types/task';
+import { Category, Event } from '@/types/event';
 
-interface AddTaskModalProps {
+interface AddEventModalProps {
   isOpen: boolean;
   selectedDate: Date | null;
-  editingTask: Task | null;
+  editingEvent: Event | null;
   onClose: () => void;
   onSubmit: (name: string, category: Category, time?: string) => void;
 }
 
 const categories: Category[] = ['work', 'projects', 'personal',  'home', 'benja', 'sophi', 'other'];
 
-export default function AddTaskModal({
+export default function AddEventModal({
   isOpen,
   selectedDate,
-  editingTask,
+  editingEvent,
   onClose,
   onSubmit,
-}: AddTaskModalProps) {
+}: AddEventModalProps) {
   const [name, setName] = useState('');
   const [category, setCategory] = useState<Category>('personal');
   const [time, setTime] = useState('');
 
-  // Populate fields when editing
   useEffect(() => {
-    if (editingTask) {
-      setName(editingTask.name);
-      setCategory(editingTask.category);
-      setTime(editingTask.time || '');
+    /* eslint-disable react-hooks/set-state-in-effect */
+    if (editingEvent) {
+      setName(editingEvent.name);
+      setCategory(editingEvent.category);
+      setTime(editingEvent.time || '');
     } else {
       setName('');
       setCategory('personal');
       setTime('');
     }
-  }, [editingTask]);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [editingEvent]);
 
   if (!isOpen || !selectedDate) return null;
 
@@ -57,7 +58,7 @@ export default function AddTaskModal({
     day: 'numeric',
   });
 
-  const isEditing = !!editingTask;
+  const isEditing = !!editingEvent;
 
   return (
     <div
@@ -75,12 +76,12 @@ export default function AddTaskModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="taskName" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="eventName" className="block text-sm font-medium text-gray-700 mb-2">
               Event Name
             </label>
             <input
               type="text"
-              id="taskName"
+              id="eventName"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"

@@ -1,9 +1,9 @@
-import { Task } from '@/types/task';
+import { Event } from '@/types/event';
 
-interface TaskCardProps {
-  task: Task;
+interface EventCardProps {
+  event: Event;
   onDelete: (id: string) => void;
-  onEdit: (task: Task) => void;
+  onEdit: (event: Event) => void;
   compact?: boolean;
 }
 
@@ -17,23 +17,24 @@ const categoryColors: Record<string, { bg: string; text: string; dot: string; bo
   other: { bg: 'bg-gray-50', text: 'text-gray-700', dot: 'bg-gray-500', border: 'border-gray-200' },
 };
 
-export default function TaskCard({ task, onDelete, onEdit, compact = false }: TaskCardProps) {
-  const colors = categoryColors[task.category];
+export default function EventCard({ event, onDelete, onEdit, compact = false }: EventCardProps) {
+  const colors = categoryColors[event.category];
+  const padding = compact ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm';
 
   return (
     <div
-      onClick={() => onEdit(task)}
-      className={`${colors.bg} ${colors.border} border rounded px-2 py-1 mb-1 group hover:shadow-sm transition-all cursor-pointer`}
+      onClick={() => onEdit(event)}
+      className={`${colors.bg} ${colors.border} border rounded ${padding} mb-1 group hover:shadow-sm transition-all cursor-pointer`}
     >
       <div className="flex items-start gap-1.5">
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2">
             <p className={`text-xs font-medium ${colors.text} truncate`}>
-              {task.name}
+              {event.name}
             </p>
-            {task.time && (
+            {event.time && (
               <span className={`text-xs font-bold ${colors.text}`}>
-                {task.time}
+                {event.time}
               </span>
             )}
           </div>
@@ -41,10 +42,10 @@ export default function TaskCard({ task, onDelete, onEdit, compact = false }: Ta
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onDelete(task.id);
+            onDelete(event.id);
           }}
           className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-600 text-xs flex-shrink-0"
-          aria-label="Delete task"
+          aria-label="Delete event"
         >
           ✕
         </button>

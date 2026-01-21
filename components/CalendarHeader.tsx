@@ -1,6 +1,6 @@
 import Breadcrumb from './Breadcrumb';
 import CategoryFilter from './CategoryFilter';
-import { Category } from '@/types/task';
+import { Category } from '@/types/event';
 
 interface CalendarHeaderProps {
   currentMonth: number;
@@ -29,7 +29,6 @@ export default function CalendarHeader({
   selectedCategories,
   onCategoryToggle,
 }: CalendarHeaderProps) {
-  const today = new Date();
   const startDate = new Date(currentYear, currentMonth, 1);
   const endDate = new Date(currentYear, currentMonth + 1, 0);
 

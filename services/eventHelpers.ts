@@ -1,20 +1,13 @@
-import { Task, Category, MonthTasks } from '@/types/task';
+import { Event, Category, MonthEvents } from '@/types/event';
 
-/**
- * Task Service - Encapsulates business logic for task management
- */
-
-/**
- * Creates a new task
- */
-export function createTask(
+export function createEvent(
   name: string,
   category: Category,
   date: string,
   time?: string
-): Task {
+): Event {
   return {
-    id: generateTaskId(),
+    id: generateEventId(),
     name,
     category,
     date,
@@ -22,80 +15,51 @@ export function createTask(
   };
 }
 
-/**
- * Adds a task to the month tasks collection
- */
-export function addTaskToMonth(
-  monthTasks: MonthTasks,
-  task: Task
-): MonthTasks {
-  const dateTasks = monthTasks[task.date] || [];
+export function addEventToMonth(monthEvents: MonthEvents, event: Event): MonthEvents {
+  const dateEvents = monthEvents[event.date] || [];
   return {
-    ...monthTasks,
-    [task.date]: [...dateTasks, task],
+    ...monthEvents,
+    [event.date]: [...dateEvents, event],
   };
 }
 
-/**
- * Updates a task in the month tasks collection
- */
-export function updateTaskInMonth(
-  monthTasks: MonthTasks,
-  taskId: string,
+export function updateEventInMonth(
+  monthEvents: MonthEvents,
+  eventId: string,
   updates: { name: string; category: Category; time?: string }
-): MonthTasks {
-  const updatedMonth: MonthTasks = {};
+): MonthEvents {
+  const updatedMonth: MonthEvents = {};
 
-  Object.keys(monthTasks).forEach((date) => {
-    updatedMonth[date] = monthTasks[date].map((task) =>
-      task.id === taskId
-        ? { ...task, name: updates.name, category: updates.category, time: updates.time }
-        : task
+  Object.keys(monthEvents).forEach((date) => {
+    updatedMonth[date] = monthEvents[date].map((event) =>
+      event.id === eventId ? { ...event, name: updates.name, category: updates.category, time: updates.time } : event
     );
   });
 
   return updatedMonth;
 }
 
-/**
- * Deletes a task from the month tasks collection
- */
-export function deleteTaskFromMonth(
-  monthTasks: MonthTasks,
-  taskId: string
-): MonthTasks {
-  const updatedMonth: MonthTasks = {};
+export function deleteEventFromMonth(monthEvents: MonthEvents, eventId: string): MonthEvents {
+  const updatedMonth: MonthEvents = {};
 
-  Object.keys(monthTasks).forEach((date) => {
-    const filteredTasks = monthTasks[date].filter((task) => task.id !== taskId);
-    if (filteredTasks.length > 0) {
-      updatedMonth[date] = filteredTasks;
+  Object.keys(monthEvents).forEach((date) => {
+    const filteredEvents = monthEvents[date].filter((event) => event.id !== eventId);
+    if (filteredEvents.length > 0) {
+      updatedMonth[date] = filteredEvents;
     }
   });
 
   return updatedMonth;
 }
 
-/**
- * Gets tasks for a specific date
- */
-export function getTasksForDate(
-  monthTasks: MonthTasks,
-  date: string
-): Task[] {
-  return monthTasks[date] || [];
+export function getEventsForDate(monthEvents: MonthEvents, date: string): Event[] {
+  return monthEvents[date] || [];
 }
 
-/**
- * Generates a unique task ID
- */
-function generateTaskId(): string {
-  return `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+function generateEventId(): string {
+  return `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
-/**
- * Gets the days in a month as an array of Date objects
- */
 export function getMonthDays(year: number, month: number): Date[] {
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
@@ -125,9 +89,6 @@ export function getMonthDays(year: number, month: number): Date[] {
   return days;
 }
 
-/**
- * Formats a date to YYYY-MM-DD
- */
 export function formatDate(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -135,9 +96,6 @@ export function formatDate(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-/**
- * Gets month name from month number
- */
 export function getMonthName(month: number): string {
   const months = [
     'January',
@@ -156,16 +114,10 @@ export function getMonthName(month: number): string {
   return months[month] || '';
 }
 
-/**
- * Gets short day names for the week header
- */
 export function getWeekDayNames(): string[] {
   return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 }
 
-/**
- * Checks if a date is today
- */
 export function isToday(date: Date): boolean {
   const today = new Date();
   return (
@@ -175,16 +127,10 @@ export function isToday(date: Date): boolean {
   );
 }
 
-/**
- * Checks if a date is in the current month
- */
 export function isCurrentMonth(date: Date, currentMonth: number): boolean {
   return date.getMonth() === currentMonth;
 }
 
-/**
- * Gets the days in a specific week (Monday to Sunday)
- */
 export function getWeekDays(year: number, month: number, weekStart: Date): Date[] {
   const days: Date[] = [];
   const startDate = new Date(weekStart);
@@ -204,9 +150,6 @@ export function getWeekDays(year: number, month: number, weekStart: Date): Date[
   return days;
 }
 
-/**
- * Gets the current week days
- */
 export function getCurrentWeekDays(): Date[] {
   const today = new Date();
   return getWeekDays(today.getFullYear(), today.getMonth(), today);

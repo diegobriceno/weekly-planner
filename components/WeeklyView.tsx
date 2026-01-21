@@ -1,20 +1,20 @@
-import { Task } from '@/types/task';
-import TaskCard from './TaskCard';
+import { Event } from '@/types/event';
+import EventCard from './EventCard';
 
 interface WeeklyViewProps {
   weekDays: Date[];
-  tasks: { [date: string]: Task[] };
+  events: { [date: string]: Event[] };
   onDayClick: (date: Date) => void;
-  onDeleteTask: (taskId: string) => void;
-  onEditTask: (task: Task) => void;
+  onDeleteEvent: (eventId: string) => void;
+  onEditEvent: (event: Event) => void;
 }
 
 export default function WeeklyView({
   weekDays,
-  tasks,
+  events,
   onDayClick,
-  onDeleteTask,
-  onEditTask,
+  onDeleteEvent,
+  onEditEvent,
 }: WeeklyViewProps) {
   const formatDateKey = (date: Date): string => {
     const year = date.getFullYear();
@@ -39,7 +39,7 @@ export default function WeeklyView({
       <div className="grid grid-cols-7 gap-px bg-gray-200">
         {weekDays.map((date, index) => {
           const dateKey = formatDateKey(date);
-          const dayTasks = tasks[dateKey] || [];
+          const dayEvents = events[dateKey] || [];
           const today = isToday(date);
 
           return (
@@ -64,17 +64,17 @@ export default function WeeklyView({
                 className="min-h-[500px] p-3 cursor-pointer hover:bg-gray-50 transition-colors"
               >
                 <div className="space-y-1">
-                  {dayTasks.map((task) => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      onDelete={onDeleteTask}
-                      onEdit={onEditTask}
+                  {dayEvents.map((event) => (
+                    <EventCard
+                      key={event.id}
+                      event={event}
+                      onDelete={onDeleteEvent}
+                      onEdit={onEditEvent}
                     />
                   ))}
                 </div>
 
-                {dayTasks.length === 0 && (
+                {dayEvents.length === 0 && (
                   <div className="flex items-center justify-center h-32">
                     <p className="text-xs text-gray-400">No events</p>
                   </div>

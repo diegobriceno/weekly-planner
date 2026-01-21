@@ -7,7 +7,7 @@ export type Category =
   | 'sophi'
   | 'other';
 
-export interface Task {
+export interface Event {
   id: string;
   name: string;
   category: Category;
@@ -15,6 +15,6 @@ export interface Task {
   time?: string; // Optional time in HH:MM format
 }
 
-export type MonthTasks = {
-  [key: string]: Task[]; // key is date string (YYYY-MM-DD)
+export type MonthEvents = {
+  [key: string]: Event[]; // key is date string (YYYY-MM-DD)
 };

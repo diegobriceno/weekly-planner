@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Next.js 16 meal planner application bootstrapped with `create-next-app`. It uses the App Router architecture, TypeScript, React 19, and Tailwind CSS v4.
+This is a Next.js 16 weekly planner application bootstrapped with `create-next-app`. It uses the App Router architecture, TypeScript, React 19, and Tailwind CSS v4.
 
 ## Development Commands
 

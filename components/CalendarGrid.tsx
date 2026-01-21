@@ -1,24 +1,24 @@
-import { Task } from '@/types/task';
-import TaskCard from './TaskCard';
+import { Event } from '@/types/event';
+import EventCard from './EventCard';
 
 interface CalendarGridProps {
   days: Date[];
   currentMonth: number;
-  tasks: { [date: string]: Task[] };
+  events: { [date: string]: Event[] };
   weekDayNames: string[];
   onDayClick: (date: Date) => void;
-  onDeleteTask: (taskId: string) => void;
-  onEditTask: (task: Task) => void;
+  onDeleteEvent: (eventId: string) => void;
+  onEditEvent: (event: Event) => void;
 }
 
 export default function CalendarGrid({
   days,
   currentMonth,
-  tasks,
+  events,
   weekDayNames,
   onDayClick,
-  onDeleteTask,
-  onEditTask,
+  onDeleteEvent,
+  onEditEvent,
 }: CalendarGridProps) {
   const formatDateKey = (date: Date): string => {
     const year = date.getFullYear();
@@ -58,7 +58,7 @@ export default function CalendarGrid({
       <div className="grid grid-cols-7">
         {days.map((date, index) => {
           const dateKey = formatDateKey(date);
-          const dayTasks = tasks[dateKey] || [];
+          const dayEvents = events[dateKey] || [];
           const today = isToday(date);
           const currentMonthDay = isCurrentMonth(date);
 
@@ -87,18 +87,18 @@ export default function CalendarGrid({
               </div>
 
               <div className="space-y-0.5 overflow-hidden">
-                {dayTasks.slice(0, 3).map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onDelete={onDeleteTask}
-                    onEdit={onEditTask}
+                {dayEvents.slice(0, 3).map((event) => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    onDelete={onDeleteEvent}
+                    onEdit={onEditEvent}
                     compact
                   />
                 ))}
-                {dayTasks.length > 3 && (
+                {dayEvents.length > 3 && (
                   <p className="text-xs text-gray-500 pl-2">
-                    +{dayTasks.length - 3} more...
+                    +{dayEvents.length - 3} more...
                   </p>
                 )}
               </div>

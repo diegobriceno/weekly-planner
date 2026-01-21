@@ -1,23 +1,27 @@
 'use client';
 
-import { useState } from 'react';
-import { Category, MonthTasks, Task } from '@/types/task';
+import { useState, useEffect } from 'react';
+import { Category, MonthEvents, Event } from '@/types/event';
 import CalendarHeader from './CalendarHeader';
 import CalendarGrid from './CalendarGrid';
 import WeeklyView from './WeeklyView';
-import AddTaskModal from './AddTaskModal';
+import AddEventModal from './AddEventModal';
 import {
-  createTask,
-  addTaskToMonth,
-  updateTaskInMonth,
-  deleteTaskFromMonth,
+  addEventToMonth,
+  updateEventInMonth,
+  deleteEventFromMonth,
   getMonthDays,
-  getCurrentWeekDays,
   getWeekDays,
   formatDate,
   getMonthName,
   getWeekDayNames,
-} from '@/services/taskService';
+} from '@/services/eventHelpers';
+import {
+  fetchAllEvents,
+  createEventApi,
+  updateEventApi,
+  deleteEventApi,
+} from '@/services/eventApi';
 
 /**
  * MonthlyPlanner - Container Component
@@ -27,13 +31,30 @@ export default function MonthlyPlanner() {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const [monthTasks, setMonthTasks] = useState<MonthTasks>({});
+  const [monthEvents, setMonthEvents] = useState<MonthEvents>({});
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
   const [currentWeekStart, setCurrentWeekStart] = useState(today);
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load events from API on mount
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const data = await fetchAllEvents();
+      setMonthEvents(data);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handlePreviousMonth = () => {
     if (viewMode === 'month') {
@@ -96,34 +117,47 @@ export default function MonthlyPlanner() {
     setModalOpen(true);
   };
 
-  const handleSubmitTask = (name: string, category: Category, time?: string) => {
-    if (editingTask) {
-      // Update existing task
-      setMonthTasks(updateTaskInMonth(monthTasks, editingTask.id, { name, category, time }));
-      setEditingTask(null);
-    } else if (selectedDate) {
-      // Create new task
-      const dateString = formatDate(selectedDate);
-      const newTask = createTask(name, category, dateString, time);
-      setMonthTasks(addTaskToMonth(monthTasks, newTask));
+  const handleSubmitEvent = async (name: string, category: Category, time?: string) => {
+    try {
+      if (editingEvent) {
+        // Update existing event via service (API)
+        await updateEventApi(editingEvent.id, { name, category, time });
+        // Update local state
+        setMonthEvents(updateEventInMonth(monthEvents, editingEvent.id, { name, category, time }));
+        setEditingEvent(null);
+      } else if (selectedDate) {
+        // Create new event via service (API)
+        const dateString = formatDate(selectedDate);
+        const newEvent = await createEventApi({ name, category, date: dateString, time });
+        // Update local state
+        setMonthEvents(addEventToMonth(monthEvents, newEvent));
+      }
+    } catch (error) {
+      console.error('Error saving event:', error);
     }
   };
 
-  const handleEditTask = (task: Task) => {
-    setEditingTask(task);
-    // Parse the task's date to create a Date object
-    const [year, month, day] = task.date.split('-').map(Number);
+  const handleEditEvent = (event: Event) => {
+    setEditingEvent(event);
+    // Parse the event date to create a Date object
+    const [year, month, day] = event.date.split('-').map(Number);
     setSelectedDate(new Date(year, month - 1, day));
     setModalOpen(true);
   };
 
-  const handleDeleteTask = (taskId: string) => {
-    setMonthTasks(deleteTaskFromMonth(monthTasks, taskId));
+  const handleDeleteEvent = async (eventId: string) => {
+    try {
+      await deleteEventApi(eventId);
+      // Update local state
+      setMonthEvents(deleteEventFromMonth(monthEvents, eventId));
+    } catch (error) {
+      console.error('Error deleting event:', error);
+    }
   };
 
   const handleCloseModal = () => {
     setModalOpen(false);
-    setEditingTask(null);
+    setEditingEvent(null);
   };
 
   const handleCategoryToggle = (category: Category | 'all') => {
@@ -138,19 +172,19 @@ export default function MonthlyPlanner() {
     }
   };
 
-  // Filter tasks based on selected categories
-  const filterTasks = (tasks: MonthTasks): MonthTasks => {
+  // Filter events based on selected categories
+  const filterEvents = (events: MonthEvents): MonthEvents => {
     if (selectedCategories.length === 0) {
-      return tasks;
+      return events;
     }
 
-    const filtered: MonthTasks = {};
-    Object.keys(tasks).forEach((date) => {
-      const filteredDayTasks = tasks[date].filter((task) =>
-        selectedCategories.includes(task.category)
+    const filtered: MonthEvents = {};
+    Object.keys(events).forEach((date) => {
+      const filteredDayEvents = events[date].filter((event) =>
+        selectedCategories.includes(event.category)
       );
-      if (filteredDayTasks.length > 0) {
-        filtered[date] = filteredDayTasks;
+      if (filteredDayEvents.length > 0) {
+        filtered[date] = filteredDayEvents;
       }
     });
     return filtered;
@@ -160,7 +194,18 @@ export default function MonthlyPlanner() {
   const weekDays = getWeekDays(currentYear, currentMonth, currentWeekStart);
   const monthName = getMonthName(currentMonth);
   const weekDayNames = getWeekDayNames();
-  const filteredTasks = filterTasks(monthTasks);
+  const filteredEvents = filterEvents(monthEvents);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading events...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -183,29 +228,29 @@ export default function MonthlyPlanner() {
           <CalendarGrid
             days={monthDays}
             currentMonth={currentMonth}
-            tasks={filteredTasks}
+            events={filteredEvents}
             weekDayNames={weekDayNames}
             onDayClick={handleDayClick}
-            onDeleteTask={handleDeleteTask}
-            onEditTask={handleEditTask}
+            onDeleteEvent={handleDeleteEvent}
+            onEditEvent={handleEditEvent}
           />
         ) : (
           <WeeklyView
             weekDays={weekDays}
-            tasks={filteredTasks}
+            events={filteredEvents}
             onDayClick={handleDayClick}
-            onDeleteTask={handleDeleteTask}
-            onEditTask={handleEditTask}
+            onDeleteEvent={handleDeleteEvent}
+            onEditEvent={handleEditEvent}
           />
         )}
       </div>
 
-      <AddTaskModal
+      <AddEventModal
         isOpen={modalOpen}
         selectedDate={selectedDate}
-        editingTask={editingTask}
+        editingEvent={editingEvent}
         onClose={handleCloseModal}
-        onSubmit={handleSubmitTask}
+        onSubmit={handleSubmitEvent}
       />
     </div>
   );

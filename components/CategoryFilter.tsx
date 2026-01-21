@@ -1,4 +1,4 @@
-import { Category } from '@/types/task';
+import { Category } from '@/types/event';
 
 interface CategoryFilterProps {
   selectedCategories: Category[];
