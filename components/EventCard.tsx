@@ -31,10 +31,11 @@ export default function EventCard({ event, onDelete, onEdit, compact = false, ti
     return (
       <div
         onClick={() => onEdit(event)}
-        className={`${colors.bg} ${colors.border} border-l-4 border-t border-r border-b rounded-sm px-1 py-1 h-full group hover:shadow-md transition-all cursor-pointer overflow-hidden flex flex-col`}
+        className={`${colors.bg} ${colors.border} border-l-4 border-t border-r border-b rounded-sm px-1 py-1 h-full group hover:shadow-md transition-all cursor-pointer overflow-hidden flex flex-col relative`}
+        title={`${event.name}${timeDisplay ? `\n${timeDisplay}` : ''}`}
       >
-        <div className="flex items-start justify-between gap-1 mb-0.5">
-          <p className={`text-xs font-semibold ${colors.text} leading-tight line-clamp-2`}>
+        <div className="flex items-start justify-between gap-0.5 min-h-0">
+          <p className={`text-xs font-semibold ${colors.text} leading-tight line-clamp-2 flex-1 min-w-0 break-words`}>
             {event.name}
           </p>
           <button
@@ -42,14 +43,14 @@ export default function EventCard({ event, onDelete, onEdit, compact = false, ti
               e.stopPropagation();
               onDelete(event.seriesId || event.id);
             }}
-            className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-600 text-xs flex-shrink-0 -mt-0.5"
+            className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-600 text-xs flex-shrink-0 leading-none"
             aria-label="Delete event"
           >
             ✕
           </button>
         </div>
         {timeDisplay && (
-          <p className={`text-xs ${colors.text} opacity-75 leading-tight`}>
+          <p className={`text-[10px] ${colors.text} opacity-75 leading-tight mt-0.5 truncate`}>
             {timeDisplay}
           </p>
         )}

@@ -1,15 +1,5 @@
 {
   "byDate": {
-    "2026-01-21": [
-      {
-        "id": "event-1768959498958-h3yfblmg2",
-        "name": "Performance review",
-        "category": "work",
-        "date": "2026-01-21",
-        "startTime": "10:15",
-        "endTime": "11:30"
-      }
-    ],
     "2026-01-25": [
       {
         "id": "event-1769008684077-kf3iezjwg",
@@ -18,32 +8,44 @@
         "date": "2026-01-25",
         "startTime": "19:00",
         "endTime": "20:30"
+      },
+      {
+        "id": "event-1769010400962-l6k89hzsd",
+        "name": "Viaje TCQ",
+        "category": "home",
+        "date": "2026-01-25",
+        "startTime": "15:00",
+        "endTime": "17:00"
+      }
+    ],
+    "2026-01-21": [
+      {
+        "id": "event-1769010296253-g4nhxhv69",
+        "name": "test",
+        "category": "personal",
+        "date": "2026-01-21",
+        "startTime": "09:00",
+        "endTime": "10:00"
       }
     ],
     "2026-01-22": [
       {
-        "id": "event-1769009601681-8z5hvz967",
-        "name": "caro",
-        "category": "personal",
+        "id": "event-1769010300459-2i45zlb5x",
+        "name": "test",
+        "category": "work",
         "date": "2026-01-22",
         "startTime": "09:00",
         "endTime": "10:00"
-      },
+      }
+    ],
+    "2026-01-23": [
       {
-        "id": "event-1769009609842-87287uljx",
-        "name": "sophi",
-        "category": "sophi",
-        "date": "2026-01-22",
-        "startTime": "09:00",
-        "endTime": "10:00"
-      },
-      {
-        "id": "event-1769009615834-m0pcmykr1",
-        "name": "benja",
-        "category": "benja",
-        "date": "2026-01-22",
-        "startTime": "09:00",
-        "endTime": "10:00"
+        "id": "event-1769010376616-i812pqc30",
+        "name": "Viaje MOQ",
+        "category": "home",
+        "date": "2026-01-23",
+        "startTime": "15:00",
+        "endTime": "17:00"
       }
     ]
   },

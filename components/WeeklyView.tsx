@@ -105,7 +105,7 @@ export default function WeeklyView({
                 return (
                   <div
                     key={event.id}
-                    className="absolute px-0.5"
+                    className="absolute pr-0.5"
                     style={{
                       top: position.top,
                       height: position.height,

@@ -314,47 +314,45 @@ export function eventsOverlap(event1: Event, event2: Event): boolean {
 }
 
 /**
- * Groups overlapping events into separate columns.
+ * Gets all events that overlap with the given event.
  */
-export function groupOverlappingEvents(events: Event[]): Event[][] {
-  const groups: Event[][] = [];
-  const timedEvents = events.filter(e => e.startTime && e.endTime);
-  const sorted = [...timedEvents].sort((a, b) =>
-    (a.startTime || '00:00').localeCompare(b.startTime || '00:00')
+function getOverlappingEvents(event: Event, allEvents: Event[]): Event[] {
+  return allEvents.filter(e =>
+    e.id !== event.id && eventsOverlap(event, e)
   );
-
-  for (const event of sorted) {
-    let placed = false;
-    for (const group of groups) {
-      if (!group.some(e => eventsOverlap(e, event))) {
-        group.push(event);
-        placed = true;
-        break;
-      }
-    }
-    if (!placed) {
-      groups.push([event]);
-    }
-  }
-
-  return groups;
 }
 
 /**
  * Calculates width and left position for an event considering overlaps.
+ * Uses a column-based layout algorithm for overlapping events.
  */
 export function calculateEventLayout(event: Event, allDayEvents: Event[]) {
-  const overlapGroups = groupOverlappingEvents(allDayEvents);
+  // Get all events that overlap with this event
+  const overlapping = getOverlappingEvents(event, allDayEvents);
 
-  for (const group of overlapGroups) {
-    const index = group.findIndex(e => e.id === event.id);
-    if (index !== -1) {
-      const count = Math.min(group.length, 3); // Max 3 side-by-side
-      const width = 100 / count;
-      const left = width * Math.min(index, count - 1);
-      return { width: `${width}%`, left: `${left}%` };
-    }
+  if (overlapping.length === 0) {
+    return { width: '100%', left: '0%' };
   }
 
-  return { width: '100%', left: '0%' };
+  // Sort all overlapping events (including current) by start time, then by id for stability
+  const allOverlapping = [event, ...overlapping].sort((a, b) => {
+    const timeCompare = (a.startTime || '00:00').localeCompare(b.startTime || '00:00');
+    if (timeCompare !== 0) return timeCompare;
+    return a.id.localeCompare(b.id);
+  });
+
+  // Find the column index for the current event
+  const columnIndex = allOverlapping.findIndex(e => e.id === event.id);
+
+  // Calculate total columns needed (max 3 to keep events readable)
+  const totalColumns = Math.min(allOverlapping.length, 3);
+
+  // Calculate width and position
+  const width = 100 / totalColumns;
+  const left = width * Math.min(columnIndex, totalColumns - 1);
+
+  return {
+    width: `${width}%`,
+    left: `${left}%`
+  };
 }
