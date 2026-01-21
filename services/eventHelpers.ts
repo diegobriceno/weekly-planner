@@ -1,4 +1,4 @@
-import { Event, Category, MonthEvents } from '@/types/event';
+import { Event, Category, MonthEvents, RecurringEvent } from '@/types/event';
 
 export function createEvent(
   name: string,
@@ -54,6 +54,97 @@ export function deleteEventFromMonth(monthEvents: MonthEvents, eventId: string):
 
 export function getEventsForDate(monthEvents: MonthEvents, date: string): Event[] {
   return monthEvents[date] || [];
+}
+
+function parseIsoDate(date: string): Date {
+  const [y, m, d] = date.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function compareIso(a: string, b: string): number {
+  // YYYY-MM-DD lexicographic compare works
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+function isDateInRange(date: string, start: string, end?: string): boolean {
+  if (compareIso(date, start) < 0) return false;
+  if (end && compareIso(date, end) > 0) return false;
+  return true;
+}
+
+function makeInstanceId(seriesId: string, date: string): string {
+  return `${seriesId}__${date}`;
+}
+
+function sortEventsByTime(events: Event[]): Event[] {
+  return [...events].sort((a, b) => {
+    const at = a.time || '';
+    const bt = b.time || '';
+    if (at === bt) return a.name.localeCompare(b.name);
+    // empty time goes last
+    if (!at) return 1;
+    if (!bt) return -1;
+    return at.localeCompare(bt);
+  });
+}
+
+/**
+ * Expands recurring series into concrete instances for the given date keys.
+ * Returned instances have `seriesId` pointing to the recurring series ID and
+ * a stable per-day `id` so the UI can key lists reliably.
+ */
+export function expandRecurringEventsForDates(
+  recurring: RecurringEvent[],
+  dateKeys: string[]
+): MonthEvents {
+  const out: MonthEvents = {};
+
+  for (const dateKey of dateKeys) {
+    for (const series of recurring) {
+      if (!isDateInRange(dateKey, series.startDate, series.endDate)) continue;
+
+      const dateObj = parseIsoDate(dateKey);
+
+      let matches = false;
+      if (series.recurrence.kind === 'day_of_month') {
+        matches = dateObj.getDate() === series.recurrence.day;
+      } else if (series.recurrence.kind === 'day_of_week') {
+        matches = dateObj.getDay() === series.recurrence.day;
+      }
+
+      if (!matches) continue;
+
+      const instance: Event = {
+        id: makeInstanceId(series.id, dateKey),
+        seriesId: series.id,
+        name: series.name,
+        category: series.category,
+        date: dateKey,
+        time: series.time,
+      };
+
+      if (!out[dateKey]) out[dateKey] = [];
+      out[dateKey].push(instance);
+    }
+  }
+
+  // Sort each day by time/name
+  for (const k of Object.keys(out)) {
+    out[k] = sortEventsByTime(out[k]);
+  }
+  return out;
+}
+
+/**
+ * Merges one-off events with expanded recurring instances.
+ */
+export function mergeEvents(oneOff: MonthEvents, expandedRecurring: MonthEvents): MonthEvents {
+  const merged: MonthEvents = { ...oneOff };
+  for (const dateKey of Object.keys(expandedRecurring)) {
+    const combined = [...(merged[dateKey] || []), ...expandedRecurring[dateKey]];
+    merged[dateKey] = sortEventsByTime(combined);
+  }
+  return merged;
 }
 
 function generateEventId(): string {

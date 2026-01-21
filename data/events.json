@@ -1,10 +1,44 @@
 {
-  "2026-01-21": [
+  "byDate": {
+    "2026-01-21": [
+      {
+        "id": "event-1768959498958-h3yfblmg2",
+        "name": "Performance review",
+        "category": "work",
+        "date": "2026-01-21"
+      }
+    ],
+    "2026-03-12": [
+      {
+        "id": "event-1768996313792-oj7gxoh39",
+        "name": "testing",
+        "category": "benja",
+        "date": "2026-03-12"
+      }
+    ]
+  },
+  "recurring": [
     {
-      "id": "event-1768959498958-h3yfblmg2",
-      "name": "Performance review",
-      "category": "work",
-      "date": "2026-01-21"
+      "id": "rec-1768996193064-9to74vfdl",
+      "name": "BCP",
+      "category": "home",
+      "startDate": "2026-01-22",
+      "endDate": "2027-01-21",
+      "recurrence": {
+        "kind": "day_of_month",
+        "day": 24
+      }
+    },
+    {
+      "id": "rec-1768996261794-ajecapisf",
+      "name": "Estudiar ingles",
+      "category": "projects",
+      "startDate": "2026-01-21",
+      "endDate": "2026-03-28",
+      "recurrence": {
+        "kind": "day_of_week",
+        "day": 1
+      }
     }
   ]
 }

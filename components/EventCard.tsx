@@ -42,7 +42,7 @@ export default function EventCard({ event, onDelete, onEdit, compact = false }: 
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onDelete(event.id);
+            onDelete(event.seriesId || event.id);
           }}
           className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-600 text-xs flex-shrink-0"
           aria-label="Delete event"

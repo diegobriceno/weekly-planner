@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Category, MonthEvents, Event } from '@/types/event';
+import { Category, Event, MonthEvents, RecurrenceRule, RecurringEvent, StoredEvents } from '@/types/event';
 import CalendarHeader from './CalendarHeader';
 import CalendarGrid from './CalendarGrid';
 import WeeklyView from './WeeklyView';
@@ -15,6 +15,8 @@ import {
   formatDate,
   getMonthName,
   getWeekDayNames,
+  expandRecurringEventsForDates,
+  mergeEvents,
 } from '@/services/eventHelpers';
 import {
   fetchAllEvents,
@@ -31,7 +33,7 @@ export default function MonthlyPlanner() {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const [monthEvents, setMonthEvents] = useState<MonthEvents>({});
+  const [storedEvents, setStoredEvents] = useState<StoredEvents>({ byDate: {}, recurring: [] });
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -48,7 +50,7 @@ export default function MonthlyPlanner() {
   const fetchEvents = async () => {
     try {
       const data = await fetchAllEvents();
-      setMonthEvents(data);
+      setStoredEvents(data);
     } catch (error) {
       console.error('Error fetching events:', error);
     } finally {
@@ -117,20 +119,65 @@ export default function MonthlyPlanner() {
     setModalOpen(true);
   };
 
-  const handleSubmitEvent = async (name: string, category: Category, time?: string) => {
+  const handleSubmitEvent = async (
+    input: {
+      name: string;
+      category: Category;
+      time?: string;
+      recurrence?: RecurrenceRule;
+      endDate?: string;
+    }
+  ) => {
     try {
+      const { name, category, time, recurrence, endDate } = input;
       if (editingEvent) {
-        // Update existing event via service (API)
-        await updateEventApi(editingEvent.id, { name, category, time });
-        // Update local state
-        setMonthEvents(updateEventInMonth(monthEvents, editingEvent.id, { name, category, time }));
+        const targetId = editingEvent.seriesId || editingEvent.id;
+
+        // Update recurring series vs one-off event via API
+        await updateEventApi(targetId, { name, category, time, recurrence, endDate });
+
+        // Update local state (optimistic)
+        if (editingEvent.seriesId) {
+          setStoredEvents((prev) => ({
+            ...prev,
+            recurring: prev.recurring.map((r) =>
+              r.id === targetId
+                ? {
+                    ...r,
+                    name,
+                    category,
+                    time,
+                    ...(recurrence ? { recurrence } : {}),
+                    ...(endDate !== undefined ? { endDate } : {}),
+                  }
+                : r
+            ),
+          }));
+        } else {
+          setStoredEvents((prev) => ({
+            ...prev,
+            byDate: updateEventInMonth(prev.byDate, targetId, { name, category, time }),
+          }));
+        }
         setEditingEvent(null);
       } else if (selectedDate) {
         // Create new event via service (API)
         const dateString = formatDate(selectedDate);
-        const newEvent = await createEventApi({ name, category, date: dateString, time });
+        const created = await createEventApi({
+          name,
+          category,
+          date: dateString,
+          time,
+          recurrence,
+          endDate,
+        });
+
         // Update local state
-        setMonthEvents(addEventToMonth(monthEvents, newEvent));
+        if ('recurrence' in created) {
+          setStoredEvents((prev) => ({ ...prev, recurring: [...prev.recurring, created as RecurringEvent] }));
+        } else {
+          setStoredEvents((prev) => ({ ...prev, byDate: addEventToMonth(prev.byDate, created as Event) }));
+        }
       }
     } catch (error) {
       console.error('Error saving event:', error);
@@ -138,10 +185,25 @@ export default function MonthlyPlanner() {
   };
 
   const handleEditEvent = (event: Event) => {
-    setEditingEvent(event);
-    // Parse the event date to create a Date object
-    const [year, month, day] = event.date.split('-').map(Number);
-    setSelectedDate(new Date(year, month - 1, day));
+    // If it's a recurring instance, edit the series (whole series)
+    if (event.seriesId) {
+      const series = storedEvents.recurring.find((r) => r.id === event.seriesId);
+      if (series) {
+        // Represent series in the modal using the clicked day as context
+        setEditingEvent({ ...event, id: series.id, seriesId: series.id });
+        const [year, month, day] = event.date.split('-').map(Number);
+        setSelectedDate(new Date(year, month - 1, day));
+      } else {
+        setEditingEvent(event);
+        const [year, month, day] = event.date.split('-').map(Number);
+        setSelectedDate(new Date(year, month - 1, day));
+      }
+    } else {
+      setEditingEvent(event);
+      // Parse the event date to create a Date object
+      const [year, month, day] = event.date.split('-').map(Number);
+      setSelectedDate(new Date(year, month - 1, day));
+    }
     setModalOpen(true);
   };
 
@@ -149,7 +211,13 @@ export default function MonthlyPlanner() {
     try {
       await deleteEventApi(eventId);
       // Update local state
-      setMonthEvents(deleteEventFromMonth(monthEvents, eventId));
+      setStoredEvents((prev) => {
+        const isRecurring = prev.recurring.some((r) => r.id === eventId);
+        if (isRecurring) {
+          return { ...prev, recurring: prev.recurring.filter((r) => r.id !== eventId) };
+        }
+        return { ...prev, byDate: deleteEventFromMonth(prev.byDate, eventId) };
+      });
     } catch (error) {
       console.error('Error deleting event:', error);
     }
@@ -194,7 +262,13 @@ export default function MonthlyPlanner() {
   const weekDays = getWeekDays(currentYear, currentMonth, currentWeekStart);
   const monthName = getMonthName(currentMonth);
   const weekDayNames = getWeekDayNames();
-  const filteredEvents = filterEvents(monthEvents);
+  const visibleDateKeys =
+    viewMode === 'month'
+      ? monthDays.map((d) => formatDate(d))
+      : weekDays.map((d) => formatDate(d));
+  const expandedRecurring = expandRecurringEventsForDates(storedEvents.recurring, visibleDateKeys);
+  const mergedForView = mergeEvents(storedEvents.byDate, expandedRecurring);
+  const filteredEvents = filterEvents(mergedForView);
 
   if (isLoading) {
     return (
@@ -249,6 +323,7 @@ export default function MonthlyPlanner() {
         isOpen={modalOpen}
         selectedDate={selectedDate}
         editingEvent={editingEvent}
+        recurringSeries={storedEvents.recurring}
         onClose={handleCloseModal}
         onSubmit={handleSubmitEvent}
       />

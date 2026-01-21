@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readEvents, writeEvents } from '@/lib/eventStorage';
-import { Event, Category } from '@/types/event';
+import { Category, Event, RecurrenceRule, RecurringEvent } from '@/types/event';
 
 /**
  * GET /api/events - Get all events
@@ -24,7 +24,14 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, category, date, time } = body;
+    const { name, category, date, time, recurrence, endDate } = body as {
+      name?: string;
+      category?: string;
+      date?: string;
+      time?: string;
+      recurrence?: RecurrenceRule;
+      endDate?: string;
+    };
 
     // Validate required fields
     if (!name || !category || !date) {
@@ -34,7 +41,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create new event
+    // Read existing events
+    const stored = await readEvents();
+
+    // Recurring series
+    if (recurrence) {
+      const newRecurring: RecurringEvent = {
+        id: `rec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        name,
+        category: category as Category,
+        time,
+        startDate: date,
+        endDate,
+        recurrence,
+      };
+      stored.recurring.push(newRecurring);
+      await writeEvents(stored);
+      return NextResponse.json(newRecurring, { status: 201 });
+    }
+
+    // One-off event
     const newEvent: Event = {
       id: `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       name,
@@ -43,18 +69,11 @@ export async function POST(request: NextRequest) {
       time,
     };
 
-    // Read existing events
-    const events = await readEvents();
-
-    // Add event to the date
-    if (!events[date]) {
-      events[date] = [];
+    if (!stored.byDate[date]) {
+      stored.byDate[date] = [];
     }
-    events[date].push(newEvent);
-
-    // Write back to file
-    await writeEvents(events);
-
+    stored.byDate[date].push(newEvent);
+    await writeEvents(stored);
     return NextResponse.json(newEvent, { status: 201 });
   } catch (error) {
     console.error('Error creating event:', error);

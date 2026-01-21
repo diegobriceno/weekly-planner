@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readEvents, writeEvents } from '@/lib/eventStorage';
-import { Category } from '@/types/event';
+import { Category, RecurrenceRule } from '@/types/event';
 
 /**
  * PUT /api/events/[id] - Update an event
@@ -12,21 +12,42 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, category, time } = body;
+    const { name, category, time, recurrence, endDate } = body as {
+      name?: string;
+      category?: string;
+      time?: string;
+      recurrence?: RecurrenceRule;
+      endDate?: string;
+    };
 
     // Read existing events
     const events = await readEvents();
 
+    // Update recurring series if it exists
+    const recurringIndex = events.recurring.findIndex((r) => r.id === id);
+    if (recurringIndex !== -1) {
+      events.recurring[recurringIndex] = {
+        ...events.recurring[recurringIndex],
+        ...(name !== undefined ? { name } : {}),
+        ...(category !== undefined ? { category: category as Category } : {}),
+        ...(time !== undefined ? { time } : {}),
+        ...(recurrence !== undefined ? { recurrence } : {}),
+        ...(endDate !== undefined ? { endDate } : {}),
+      };
+      await writeEvents(events);
+      return NextResponse.json({ success: true });
+    }
+
     // Find and update the event
     let found = false;
-    for (const date in events) {
-      const eventIndex = events[date].findIndex((event) => event.id === id);
+    for (const date in events.byDate) {
+      const eventIndex = events.byDate[date].findIndex((event) => event.id === id);
       if (eventIndex !== -1) {
-        events[date][eventIndex] = {
-          ...events[date][eventIndex],
-          name,
-          category: category as Category,
-          time,
+        events.byDate[date][eventIndex] = {
+          ...events.byDate[date][eventIndex],
+          ...(name !== undefined ? { name } : {}),
+          ...(category !== undefined ? { category: category as Category } : {}),
+          ...(time !== undefined ? { time } : {}),
         };
         found = true;
         break;
@@ -66,15 +87,23 @@ export async function DELETE(
     // Read existing events
     const events = await readEvents();
 
+    // Delete recurring series if it exists
+    const before = events.recurring.length;
+    events.recurring = events.recurring.filter((r) => r.id !== id);
+    if (events.recurring.length !== before) {
+      await writeEvents(events);
+      return NextResponse.json({ success: true });
+    }
+
     // Find and delete the event
     let found = false;
-    for (const date in events) {
-      const eventIndex = events[date].findIndex((event) => event.id === id);
+    for (const date in events.byDate) {
+      const eventIndex = events.byDate[date].findIndex((event) => event.id === id);
       if (eventIndex !== -1) {
-        events[date].splice(eventIndex, 1);
+        events.byDate[date].splice(eventIndex, 1);
         // Remove the date key if no events left
-        if (events[date].length === 0) {
-          delete events[date];
+        if (events.byDate[date].length === 0) {
+          delete events.byDate[date];
         }
         found = true;
         break;
