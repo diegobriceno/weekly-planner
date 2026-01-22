@@ -1,7 +1,7 @@
 import { Category } from '@/types/event';
 
 interface CategoryFilterProps {
-  selectedCategories: Category[];
+  disabledCategories: Category[];
   onCategoryToggle: (category: Category | 'all') => void;
 }
 
@@ -25,20 +25,29 @@ const categoryColors: Record<Category, string> = {
 };
 
 export default function CategoryFilter({
-  selectedCategories,
+  disabledCategories,
   onCategoryToggle,
 }: CategoryFilterProps) {
   const categories: (Category | 'all')[] = ['all', 'work', 'projects', 'personal', 'home', 'finances', 'other'];
-  const allSelected = selectedCategories.length === 0;
+  const allCategories: Category[] = ['work', 'projects', 'personal', 'home', 'finances', 'other'];
+
+  // 'All' is active when at least one category is enabled (not all are disabled)
+  const allActive = disabledCategories.length < allCategories.length;
 
   return (
     <div className="flex items-center gap-2 flex-wrap mb-6">
       <span className="text-sm font-medium text-gray-700 mr-2">Filter by:</span>
       {categories.map((category) => {
-        const isSelected = category === 'all' ? allSelected : selectedCategories.includes(category as Category);
+        // A category is active if it's NOT in disabledCategories
+        const isActive = category === 'all'
+          ? allActive
+          : !disabledCategories.includes(category as Category);
+
         const colorClass = category === 'all'
-          ? 'bg-gray-900 text-white border-gray-900'
-          : isSelected
+          ? isActive
+            ? 'bg-gray-900 text-white border-gray-900'
+            : 'bg-white text-gray-600 border-gray-300'
+          : isActive
             ? categoryColors[category as Category]
             : 'bg-white text-gray-600 border-gray-300';
 
@@ -47,7 +56,7 @@ export default function CategoryFilter({
             key={category}
             onClick={() => onCategoryToggle(category)}
             className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all ${colorClass} ${
-              isSelected ? 'shadow-sm' : 'hover:bg-gray-50'
+              isActive ? 'shadow-sm' : 'hover:bg-gray-50'
             }`}
           >
             {categoryLabels[category]}

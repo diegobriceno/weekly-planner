@@ -54,6 +54,52 @@ export function deleteEventFromMonth(monthEvents: MonthEvents, eventId: string):
   return updatedMonth;
 }
 
+/**
+ * Move an event from one date to another, optionally updating start and end times
+ */
+export function moveEventToNewDate(
+  monthEvents: MonthEvents,
+  eventId: string,
+  newDate: string,
+  newStartTime?: string,
+  newEndTime?: string
+): MonthEvents {
+  const updatedMonth: MonthEvents = {};
+  let movedEvent: Event | null = null;
+
+  // Find and remove event from old date
+  Object.keys(monthEvents).forEach((date) => {
+    const filteredEvents = monthEvents[date].filter((event) => {
+      if (event.id === eventId) {
+        movedEvent = event;
+        return false; // Remove from old date
+      }
+      return true;
+    });
+
+    if (filteredEvents.length > 0) {
+      updatedMonth[date] = filteredEvents;
+    }
+  });
+
+  // If event was found, add to new date with updates
+  if (movedEvent) {
+    // Create a non-null copy for TypeScript
+    const eventToMove: Event = movedEvent;
+    const updatedEvent: Event = {
+      ...eventToMove,
+      date: newDate,
+      ...(newStartTime !== undefined ? { startTime: newStartTime } : {}),
+      ...(newEndTime !== undefined ? { endTime: newEndTime } : {}),
+    };
+
+    const newDateEvents = updatedMonth[newDate] || [];
+    updatedMonth[newDate] = sortEventsByTime([...newDateEvents, updatedEvent]);
+  }
+
+  return updatedMonth;
+}
+
 export function getEventsForDate(monthEvents: MonthEvents, date: string): Event[] {
   return monthEvents[date] || [];
 }

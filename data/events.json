@@ -96,14 +96,6 @@
         "endTime": "22:00"
       },
       {
-        "id": "event-1769054745799-xmau907r9",
-        "name": "personal",
-        "category": "personal",
-        "date": "2026-01-19",
-        "startTime": "06:00",
-        "endTime": "07:00"
-      },
-      {
         "id": "event-1769054750836-8bq1s79l6",
         "name": "work",
         "category": "work",
@@ -134,6 +126,14 @@
         "date": "2026-01-19",
         "startTime": "10:00",
         "endTime": "11:00"
+      },
+      {
+        "id": "event-1769054745799-xmau907r9",
+        "name": "personal",
+        "category": "personal",
+        "date": "2026-01-19",
+        "startTime": "06:00",
+        "endTime": "07:00"
       }
     ],
     "2026-01-21": [

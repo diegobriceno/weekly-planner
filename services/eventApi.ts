@@ -35,6 +35,7 @@ export async function updateEventApi(
   updates: {
     name?: string;
     category?: Category;
+    date?: string;
     startTime?: string;
     endTime?: string;
     recurrence?: RecurrenceRule;

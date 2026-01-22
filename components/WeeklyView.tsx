@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Event } from '@/types/event';
 import EventCard from './EventCard';
 import {
@@ -6,6 +7,7 @@ import {
   calculateEventLayout,
 } from '@/services/eventHelpers';
 import { isHoliday, getHolidayName } from '@/services/holidays';
+import { calculateTimeFromPosition } from '@/services/dragDropHelpers';
 
 interface WeeklyViewProps {
   weekDays: Date[];
@@ -13,6 +15,12 @@ interface WeeklyViewProps {
   onDayClick: (date: Date, hour?: number) => void;
   onDeleteEvent: (eventId: string) => void;
   onEditEvent: (event: Event) => void;
+  onEventDrop?: (event: Event, targetDate: string, targetTime: { hour: number; minute: number }) => void;
+  dragOverDate?: string | null;
+  dragOverTime?: { hour: number; minute: number } | null;
+  onEventDragStart?: (event: Event) => void;
+  onEventDragEnd?: () => void;
+  draggedEvent?: Event | null;
 }
 
 export default function WeeklyView({
@@ -21,7 +29,19 @@ export default function WeeklyView({
   onDayClick,
   onDeleteEvent,
   onEditEvent,
+  onEventDrop,
+  dragOverDate,
+  dragOverTime: _dragOverTime, // eslint-disable-line @typescript-eslint/no-unused-vars
+  onEventDragStart,
+  onEventDragEnd,
+  draggedEvent,
 }: WeeklyViewProps) {
+  const [dropPreview, setDropPreview] = useState<{
+    date: string;
+    hour: number;
+    minute: number;
+  } | null>(null);
+
   const formatDateKey = (date: Date): string => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -49,6 +69,50 @@ export default function WeeklyView({
     const clickedHour = Math.min(Math.max(hourIndex + 6, 6), 21);
 
     return clickedHour;
+  };
+
+  const handleDragOver = (e: React.DragEvent, date: Date) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+
+    const target = e.currentTarget;
+    const rect = target.getBoundingClientRect();
+    const clickY = e.clientY - rect.top;
+    const time = calculateTimeFromPosition(clickY, rect.height, 6);
+
+    setDropPreview({
+      date: formatDateKey(date),
+      hour: time.hour,
+      minute: time.minute,
+    });
+  };
+
+  const handleDragLeave = () => {
+    setDropPreview(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, date: Date) => {
+    e.preventDefault();
+
+    try {
+      const eventData = e.dataTransfer.getData('application/json');
+      const event = JSON.parse(eventData) as Event;
+
+      const target = e.currentTarget;
+      const rect = target.getBoundingClientRect();
+      const clickY = e.clientY - rect.top;
+      const time = calculateTimeFromPosition(clickY, rect.height, 6);
+
+      const targetDateKey = formatDateKey(date);
+
+      if (onEventDrop) {
+        onEventDrop(event, targetDateKey, time);
+      }
+    } catch (error) {
+      console.error('Failed to parse dropped event:', error);
+    } finally {
+      setDropPreview(null);
+    }
   };
 
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -115,7 +179,10 @@ export default function WeeklyView({
               key={dayIndex}
               className={`relative border-l border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors ${
                 holiday ? 'bg-red-50/30' : ''
-              }`}
+              } ${dragOverDate === dateKey ? 'bg-blue-50' : ''}`}
+              onDragOver={(e) => handleDragOver(e, date)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, date)}
               onClick={(e) => {
                 const hour = calculateClickedHour(e);
                 onDayClick(date, hour);
@@ -125,6 +192,20 @@ export default function WeeklyView({
               {hours.map(hour => (
                 <div key={hour} className="h-20 border-t border-gray-200" />
               ))}
+
+              {/* Drop preview indicator */}
+              {dropPreview && dropPreview.date === dateKey && (
+                <div
+                  className="absolute left-0 right-0 h-1 bg-blue-500 z-10 pointer-events-none"
+                  style={{
+                    top: `${((dropPreview.hour - 6) * 60 + dropPreview.minute) / (16 * 60) * 100}%`,
+                  }}
+                >
+                  <div className="absolute -top-3 left-2 bg-blue-500 text-white text-xs px-2 py-0.5 rounded whitespace-nowrap">
+                    {`${String(dropPreview.hour).padStart(2, '0')}:${String(dropPreview.minute).padStart(2, '0')}`}
+                  </div>
+                </div>
+              )}
 
               {/* Timed events (positioned absolutely) */}
               {timedEvents.map(event => {
@@ -151,6 +232,9 @@ export default function WeeklyView({
                       event={event}
                       onDelete={onDeleteEvent}
                       onEdit={onEditEvent}
+                      onDragStart={onEventDragStart}
+                      onDragEnd={onEventDragEnd}
+                      isDragging={draggedEvent?.id === event.id}
                       timeGrid
                     />
                   </div>

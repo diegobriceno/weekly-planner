@@ -17,6 +17,7 @@ import {
   getWeekDayNames,
   expandRecurringEventsForDates,
   mergeEvents,
+  moveEventToNewDate,
 } from '@/services/eventHelpers';
 import {
   fetchAllEvents,
@@ -24,6 +25,11 @@ import {
   updateEventApi,
   deleteEventApi,
 } from '@/services/eventApi';
+import {
+  calculateEventDuration,
+  validateTimeWithinBounds,
+  calculateNewEndTime,
+} from '@/services/dragDropHelpers';
 
 /**
  * MonthlyPlanner - Container Component
@@ -40,8 +46,11 @@ export default function MonthlyPlanner() {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [viewMode, setViewMode] = useState<'month' | 'week'>('week');
   const [currentWeekStart, setCurrentWeekStart] = useState(today);
-  const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+  const [disabledCategories, setDisabledCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [draggedEvent, setDraggedEvent] = useState<Event | null>(null);
+  const [dragOverDate, setDragOverDate] = useState<string | null>(null);
+  const [dragOverTime, setDragOverTime] = useState<{ hour: number; minute: number } | null>(null);
 
   // Load events from API on mount
   useEffect(() => {
@@ -189,6 +198,63 @@ export default function MonthlyPlanner() {
     }
   };
 
+  const handleEventDrop = async (
+    event: Event,
+    targetDate: string,
+    targetTime?: { hour: number; minute: number }
+  ) => {
+    try {
+      // Validation: cannot move recurring event instances
+      if (event.seriesId) {
+        console.warn('Cannot move recurring event instances');
+        return;
+      }
+
+      // Calculate duration if event has times
+      let newStartTime = event.startTime;
+      let newEndTime = event.endTime;
+
+      if (targetTime && event.startTime && event.endTime) {
+        // Weekly view: calculate new times preserving duration
+        const duration = calculateEventDuration(event.startTime, event.endTime);
+        newStartTime = `${String(targetTime.hour).padStart(2, '0')}:${String(targetTime.minute).padStart(2, '0')}`;
+
+        // Validate limits
+        if (!validateTimeWithinBounds(newStartTime, duration)) {
+          console.error('Event would exceed 10 PM time limit');
+          return;
+        }
+
+        newEndTime = calculateNewEndTime(newStartTime, duration);
+      }
+
+      // Update via API
+      await updateEventApi(event.id, {
+        date: targetDate,
+        startTime: newStartTime,
+        endTime: newEndTime,
+      });
+
+      // Update local state (optimistic)
+      setStoredEvents((prev) => ({
+        ...prev,
+        byDate: moveEventToNewDate(
+          prev.byDate,
+          event.id,
+          targetDate,
+          newStartTime,
+          newEndTime
+        ),
+      }));
+    } catch (error) {
+      console.error('Error moving event:', error);
+    } finally {
+      setDraggedEvent(null);
+      setDragOverDate(null);
+      setDragOverTime(null);
+    }
+  };
+
   const handleEditEvent = (event: Event) => {
     // If it's a recurring instance, edit the series (whole series)
     if (event.seriesId) {
@@ -236,9 +302,17 @@ export default function MonthlyPlanner() {
 
   const handleCategoryToggle = (category: Category | 'all') => {
     if (category === 'all') {
-      setSelectedCategories([]);
+      // If any categories are active (not all disabled), disable all
+      // If all are disabled, enable all
+      const allCategories: Category[] = ['work', 'projects', 'personal', 'home', 'finances', 'other'];
+      if (disabledCategories.length < allCategories.length) {
+        setDisabledCategories(allCategories);
+      } else {
+        setDisabledCategories([]);
+      }
     } else {
-      setSelectedCategories((prev) =>
+      // Toggle the disabled state of the category
+      setDisabledCategories((prev) =>
         prev.includes(category)
           ? prev.filter((c) => c !== category)
           : [...prev, category]
@@ -246,16 +320,16 @@ export default function MonthlyPlanner() {
     }
   };
 
-  // Filter events based on selected categories
+  // Filter events based on disabled categories
   const filterEvents = (events: MonthEvents): MonthEvents => {
-    if (selectedCategories.length === 0) {
+    if (disabledCategories.length === 0) {
       return events;
     }
 
     const filtered: MonthEvents = {};
     Object.keys(events).forEach((date) => {
       const filteredDayEvents = events[date].filter((event) =>
-        selectedCategories.includes(event.category)
+        !disabledCategories.includes(event.category)
       );
       if (filteredDayEvents.length > 0) {
         filtered[date] = filteredDayEvents;
@@ -300,7 +374,7 @@ export default function MonthlyPlanner() {
           onAddEvent={handleAddEventClick}
           viewMode={viewMode}
           onViewModeChange={handleViewModeChange}
-          selectedCategories={selectedCategories}
+          disabledCategories={disabledCategories}
           onCategoryToggle={handleCategoryToggle}
         />
 
@@ -313,6 +387,11 @@ export default function MonthlyPlanner() {
             onDayClick={handleDayClick}
             onDeleteEvent={handleDeleteEvent}
             onEditEvent={handleEditEvent}
+            onEventDrop={handleEventDrop}
+            dragOverDate={dragOverDate}
+            onEventDragStart={setDraggedEvent}
+            onEventDragEnd={() => setDraggedEvent(null)}
+            draggedEvent={draggedEvent}
           />
         ) : (
           <WeeklyView
@@ -321,6 +400,12 @@ export default function MonthlyPlanner() {
             onDayClick={handleDayClick}
             onDeleteEvent={handleDeleteEvent}
             onEditEvent={handleEditEvent}
+            onEventDrop={handleEventDrop}
+            dragOverDate={dragOverDate}
+            dragOverTime={dragOverTime}
+            onEventDragStart={setDraggedEvent}
+            onEventDragEnd={() => setDraggedEvent(null)}
+            draggedEvent={draggedEvent}
           />
         )}
       </div>

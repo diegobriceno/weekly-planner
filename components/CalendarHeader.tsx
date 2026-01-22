@@ -12,7 +12,7 @@ interface CalendarHeaderProps {
   onAddEvent: () => void;
   viewMode: 'month' | 'week';
   onViewModeChange: (mode: 'month' | 'week') => void;
-  selectedCategories: Category[];
+  disabledCategories: Category[];
   onCategoryToggle: (category: Category | 'all') => void;
 }
 
@@ -26,7 +26,7 @@ export default function CalendarHeader({
   onAddEvent,
   viewMode,
   onViewModeChange,
-  selectedCategories,
+  disabledCategories,
   onCategoryToggle,
 }: CalendarHeaderProps) {
   const startDate = new Date(currentYear, currentMonth, 1);
@@ -142,7 +142,7 @@ export default function CalendarHeader({
       </div>
 
       <CategoryFilter
-        selectedCategories={selectedCategories}
+        disabledCategories={disabledCategories}
         onCategoryToggle={onCategoryToggle}
       />
     </div>

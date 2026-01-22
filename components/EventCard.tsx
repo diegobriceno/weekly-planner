@@ -7,9 +7,12 @@ interface EventCardProps {
   event: Event;
   onDelete: (id: string) => void;
   onEdit: (event: Event) => void;
+  onDragStart?: (event: Event) => void;
+  onDragEnd?: () => void;
   compact?: boolean;
   timeGrid?: boolean;
   hideTime?: boolean;
+  isDragging?: boolean;
 }
 
 const categoryColors: Record<string, { bg: string; text: string; dot: string; border: string }> = {
@@ -111,7 +114,17 @@ function DeleteConfirmModal({
   );
 }
 
-export default function EventCard({ event, onDelete, onEdit, compact = false, timeGrid = false, hideTime = false }: EventCardProps) {
+export default function EventCard({
+  event,
+  onDelete,
+  onEdit,
+  onDragStart,
+  onDragEnd,
+  compact = false,
+  timeGrid = false,
+  hideTime = false,
+  isDragging = false
+}: EventCardProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const colors = categoryColors[event.category];
   const padding = compact ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm';
@@ -134,13 +147,40 @@ export default function EventCard({ event, onDelete, onEdit, compact = false, ti
     setShowDeleteModal(false);
   };
 
+  const handleDragStart = (e: React.DragEvent) => {
+    if (event.seriesId) {
+      e.preventDefault(); // Do not allow dragging recurring events
+      return;
+    }
+
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('application/json', JSON.stringify(event));
+
+    if (onDragStart) {
+      onDragStart(event);
+    }
+  };
+
+  const handleDragEnd = () => {
+    if (onDragEnd) {
+      onDragEnd();
+    }
+  };
+
+  const handleEditClick = () => {
+    onEdit(event);
+  };
+
   // Time grid mode: vertical layout with full height
   if (timeGrid) {
     return (
       <>
         <div
-          onClick={() => onEdit(event)}
-          className={`${colors.bg} ${colors.border} border-l-4 border-t border-r border-b rounded-sm px-1 py-1 h-full group hover:shadow-md transition-all cursor-pointer overflow-hidden flex flex-col relative`}
+          draggable={!event.seriesId}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onClick={handleEditClick}
+          className={`${colors.bg} ${colors.border} border-l-4 border-t border-r border-b rounded-sm px-1 py-1 h-full group hover:shadow-md transition-all overflow-hidden flex flex-col relative ${isDragging ? 'opacity-40' : ''} ${!event.seriesId ? 'cursor-move' : 'cursor-pointer'}`}
           title={`${event.name}${timeDisplay ? `\n${timeDisplay}` : ''}`}
         >
           <div className="flex items-start justify-between gap-0.5 min-h-0">
@@ -176,8 +216,11 @@ export default function EventCard({ event, onDelete, onEdit, compact = false, ti
   return (
     <>
       <div
-        onClick={() => onEdit(event)}
-        className={`${colors.bg} ${colors.border} border rounded ${padding} mb-1 group hover:shadow-sm transition-all cursor-pointer`}
+        draggable={!event.seriesId}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onClick={handleEditClick}
+        className={`${colors.bg} ${colors.border} border rounded ${padding} mb-1 group hover:shadow-sm transition-all ${isDragging ? 'opacity-40' : ''} ${!event.seriesId ? 'cursor-move' : 'cursor-pointer'}`}
       >
         <div className="flex items-start gap-1.5">
           <div className="flex-1 min-w-0">
