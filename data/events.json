@@ -18,34 +18,82 @@
         "endTime": "17:00"
       }
     ],
-    "2026-01-21": [
-      {
-        "id": "event-1769010296253-g4nhxhv69",
-        "name": "test",
-        "category": "personal",
-        "date": "2026-01-21",
-        "startTime": "09:00",
-        "endTime": "10:00"
-      }
-    ],
     "2026-01-22": [
       {
-        "id": "event-1769010300459-2i45zlb5x",
-        "name": "test",
-        "category": "work",
+        "id": "event-1769039023474-fpazmo0fv",
+        "name": "Tecnico horno",
+        "category": "home",
         "date": "2026-01-22",
         "startTime": "09:00",
         "endTime": "10:00"
+      },
+      {
+        "id": "event-1769039063773-ivu6ed4pb",
+        "name": "TZ performance",
+        "category": "work",
+        "date": "2026-01-22",
+        "startTime": "11:00",
+        "endTime": "13:00"
+      },
+      {
+        "id": "event-1769039349938-ijhhh0nnp",
+        "name": "Tz commments",
+        "category": "work",
+        "date": "2026-01-22",
+        "startTime": "18:00",
+        "endTime": "19:00"
+      },
+      {
+        "id": "event-1769039362112-vt40cyot7",
+        "name": "Cursor course",
+        "category": "projects",
+        "date": "2026-01-22",
+        "startTime": "19:00",
+        "endTime": "20:00"
+      },
+      {
+        "id": "event-1769039380725-9zg7uktlq",
+        "name": "Side project Calendar",
+        "category": "personal",
+        "date": "2026-01-22",
+        "startTime": "20:00",
+        "endTime": "21:00"
+      },
+      {
+        "id": "event-1769039667952-qjph7e7bl",
+        "name": "Salir a correr",
+        "category": "personal",
+        "date": "2026-01-22",
+        "startTime": "06:00",
+        "endTime": "07:00"
       }
     ],
     "2026-01-23": [
       {
-        "id": "event-1769010376616-i812pqc30",
+        "id": "event-1769039042457-n1xdw6eqe",
+        "name": "Recoger docs",
+        "category": "benja",
+        "date": "2026-01-23",
+        "startTime": "11:00",
+        "endTime": "12:00"
+      },
+      {
+        "id": "event-1769039083619-yo36ea4j4",
         "name": "Viaje MOQ",
         "category": "home",
         "date": "2026-01-23",
         "startTime": "15:00",
         "endTime": "17:00"
+      }
+    ],
+    "2026-01-19": [
+      {
+        "id": "event-1769039697237-ehzvqmypj",
+        "name": "Pixanga Lunes",
+        "category": "personal",
+        "date": "2026-01-19",
+        "startTime": "21:00",
+        "endTime": "22:00"
       }
     ]
   },

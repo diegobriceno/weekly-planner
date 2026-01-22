@@ -37,7 +37,7 @@ export default function MonthlyPlanner() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
-  const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
+  const [viewMode, setViewMode] = useState<'month' | 'week'>('week');
   const [currentWeekStart, setCurrentWeekStart] = useState(today);
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
