@@ -111,7 +111,10 @@ export function expandRecurringEventsForDates(
       if (series.recurrence.kind === 'day_of_month') {
         matches = dateObj.getDate() === series.recurrence.day;
       } else if (series.recurrence.kind === 'day_of_week') {
-        matches = dateObj.getDay() === series.recurrence.day;
+        const days = Array.isArray(series.recurrence.day)
+          ? series.recurrence.day
+          : [series.recurrence.day];
+        matches = days.includes(dateObj.getDay());
       }
 
       if (!matches) continue;

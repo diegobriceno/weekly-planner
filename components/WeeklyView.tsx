@@ -5,6 +5,7 @@ import {
   calculateEventPosition,
   calculateEventLayout,
 } from '@/services/eventHelpers';
+import { isHoliday, getHolidayName } from '@/services/holidays';
 
 interface WeeklyViewProps {
   weekDays: Date[];
@@ -47,8 +48,17 @@ export default function WeeklyView({
         <div className="bg-gray-50" /> {/* Empty corner */}
         {weekDays.map((date, index) => {
           const today = isToday(date);
+          const dateKey = formatDateKey(date);
+          const holiday = isHoliday(dateKey);
+          const holidayName = getHolidayName(dateKey);
           return (
-            <div key={index} className="p-3 text-center border-l border-gray-200">
+            <div
+              key={index}
+              className={`p-3 text-center border-l border-gray-200 ${
+                holiday ? 'border-t-2 border-t-red-500' : ''
+              }`}
+              title={holidayName || undefined}
+            >
               <p className="text-xs font-medium text-gray-500 mb-1">
                 {dayNames[index]}
               </p>
@@ -85,11 +95,14 @@ export default function WeeklyView({
           const dayEvents = events[dateKey] || [];
           // Only show events with both start and end time
           const timedEvents = dayEvents.filter(e => e.startTime && e.endTime);
+          const holiday = isHoliday(dateKey);
 
           return (
             <div
               key={dayIndex}
-              className="relative border-l border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
+              className={`relative border-l border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors ${
+                holiday ? 'bg-red-50/30' : ''
+              }`}
               onClick={() => onDayClick(date)}
             >
               {/* Grid lines (hour rows) */}

@@ -125,7 +125,7 @@ export default function AddEventModal({
   const [endHour, setEndHour] = useState('');
   const [endMinute, setEndMinute] = useState('00');
   const [repeatMode, setRepeatMode] = useState<'none' | 'day_of_week' | 'day_of_month'>('none');
-  const [repeatDayOfWeek, setRepeatDayOfWeek] = useState<number>(1);
+  const [repeatDaysOfWeek, setRepeatDaysOfWeek] = useState<number[]>([]);
   const [repeatDayOfMonth, setRepeatDayOfMonth] = useState<number>(1);
   const [endDate, setEndDate] = useState<string>('');
 
@@ -181,10 +181,14 @@ export default function AddEventModal({
       if (series) {
         if (series.recurrence.kind === 'day_of_week') {
           setRepeatMode('day_of_week');
-          setRepeatDayOfWeek(series.recurrence.day);
+          // Handle both single number and array of numbers
+          const days = Array.isArray(series.recurrence.day)
+            ? series.recurrence.day
+            : [series.recurrence.day];
+          setRepeatDaysOfWeek(days);
         } else {
           setRepeatMode('day_of_month');
-          setRepeatDayOfMonth(series.recurrence.day);
+          setRepeatDayOfMonth(series.recurrence.day as number);
         }
         setEndDate(series.endDate || '');
       } else {
@@ -205,10 +209,10 @@ export default function AddEventModal({
       setEndDate('');
       // defaults based on selectedDate (if present)
       if (selectedDate) {
-        setRepeatDayOfWeek(selectedDate.getDay());
+        setRepeatDaysOfWeek([selectedDate.getDay()]);
         setRepeatDayOfMonth(selectedDate.getDate());
       } else {
-        setRepeatDayOfWeek(1);
+        setRepeatDaysOfWeek([1]);
         setRepeatDayOfMonth(1);
       }
     }
@@ -222,7 +226,13 @@ export default function AddEventModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim() && startHour && endHour && timeIsValid) {
+    if (
+      name.trim() &&
+      startHour &&
+      endHour &&
+      timeIsValid &&
+      (repeatMode !== 'day_of_week' || repeatDaysOfWeek.length > 0)
+    ) {
       const trimmedName = name.trim();
 
       const seriesId = editingEvent?.seriesId || editingEvent?.id || null;
@@ -231,7 +241,7 @@ export default function AddEventModal({
       const recurrence: RecurrenceRule | undefined =
         !editingEvent || isEditingSeries
           ? repeatMode === 'day_of_week'
-            ? { kind: 'day_of_week', day: repeatDayOfWeek }
+            ? { kind: 'day_of_week', day: repeatDaysOfWeek.length === 1 ? repeatDaysOfWeek[0] : repeatDaysOfWeek }
             : repeatMode === 'day_of_month'
               ? { kind: 'day_of_month', day: repeatDayOfMonth }
               : undefined
@@ -254,6 +264,7 @@ export default function AddEventModal({
       setStartTime('');
       setEndTime('');
       setRepeatMode('none');
+      setRepeatDaysOfWeek([]);
       setEndDate('');
       onClose();
     }
@@ -424,19 +435,30 @@ export default function AddEventModal({
               {repeatMode === 'day_of_week' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Day of week
+                    Days of week (select one or more)
                   </label>
-                  <select
-                    value={repeatDayOfWeek}
-                    onChange={(e) => setRepeatDayOfWeek(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                  >
+                  <div className="grid grid-cols-2 gap-2">
                     {weekDayOptions.map((d) => (
-                      <option key={d.value} value={d.value}>
-                        {d.label}
-                      </option>
+                      <label
+                        key={d.value}
+                        className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={repeatDaysOfWeek.includes(d.value)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setRepeatDaysOfWeek([...repeatDaysOfWeek, d.value].sort());
+                            } else {
+                              setRepeatDaysOfWeek(repeatDaysOfWeek.filter((day) => day !== d.value));
+                            }
+                          }}
+                          className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
+                        />
+                        <span className="text-sm text-gray-900">{d.label}</span>
+                      </label>
                     ))}
-                  </select>
+                  </div>
                 </div>
               )}
 
@@ -482,7 +504,13 @@ export default function AddEventModal({
             </button>
             <button
               type="submit"
-              disabled={!name.trim() || !startHour || !endHour || !timeIsValid}
+              disabled={
+                !name.trim() ||
+                !startHour ||
+                !endHour ||
+                !timeIsValid ||
+                (repeatMode === 'day_of_week' && repeatDaysOfWeek.length === 0)
+              }
               className="flex-1 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {isEditing ? 'Update Event' : 'Add Event'}

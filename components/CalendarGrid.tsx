@@ -1,5 +1,6 @@
 import { Event } from '@/types/event';
 import EventCard from './EventCard';
+import { isHoliday, getHolidayName } from '@/services/holidays';
 
 interface CalendarGridProps {
   days: Date[];
@@ -61,6 +62,8 @@ export default function CalendarGrid({
           const dayEvents = events[dateKey] || [];
           const today = isToday(date);
           const currentMonthDay = isCurrentMonth(date);
+          const holiday = isHoliday(dateKey);
+          const holidayName = getHolidayName(dateKey);
 
           return (
             <div
@@ -71,8 +74,10 @@ export default function CalendarGrid({
                 ${index % 7 === 6 ? 'border-r-0' : ''}
                 ${index >= days.length - 7 ? 'border-b-0' : ''}
                 ${!currentMonthDay ? 'bg-gray-50' : 'bg-white hover:bg-gray-50'}
+                ${holiday ? 'border-t-3 border-t-red-500' : ''}
                 transition-colors cursor-pointer
               `}
+              title={holidayName || undefined}
             >
               <div className="flex items-center justify-between mb-1">
                 <span

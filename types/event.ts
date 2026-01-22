@@ -15,8 +15,8 @@ export type RecurrenceRule =
     }
   | {
       kind: 'day_of_week';
-      /** JS getDay(): 0=Sun ... 6=Sat */
-      day: number;
+      /** JS getDay(): 0=Sun ... 6=Sat. Can be a single number or array of numbers */
+      day: number | number[];
     };
 
 export interface Event {
