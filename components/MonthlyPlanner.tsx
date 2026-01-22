@@ -119,11 +119,6 @@ export default function MonthlyPlanner() {
     }
   };
 
-  const handleAddEventClick = () => {
-    setSelectedDate(new Date(currentYear, currentMonth, today.getDate()));
-    setModalOpen(true);
-  };
-
   const handleDayClick = (date: Date, hour?: number) => {
     setSelectedDate(date);
     setSelectedHour(hour ?? null);
@@ -371,7 +366,6 @@ export default function MonthlyPlanner() {
           onPreviousMonth={handlePreviousMonth}
           onNextMonth={handleNextMonth}
           onToday={handleToday}
-          onAddEvent={handleAddEventClick}
           viewMode={viewMode}
           onViewModeChange={handleViewModeChange}
           disabledCategories={disabledCategories}
@@ -392,6 +386,7 @@ export default function MonthlyPlanner() {
             onEventDragStart={setDraggedEvent}
             onEventDragEnd={() => setDraggedEvent(null)}
             draggedEvent={draggedEvent}
+            onDragOverDate={setDragOverDate}
           />
         ) : (
           <WeeklyView
@@ -406,6 +401,7 @@ export default function MonthlyPlanner() {
             onEventDragStart={setDraggedEvent}
             onEventDragEnd={() => setDraggedEvent(null)}
             draggedEvent={draggedEvent}
+            onDragOverDate={setDragOverDate}
           />
         )}
       </div>

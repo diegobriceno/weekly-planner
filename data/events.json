@@ -20,14 +20,6 @@
     ],
     "2026-01-22": [
       {
-        "id": "event-1769039023474-fpazmo0fv",
-        "name": "Tecnico horno",
-        "category": "home",
-        "date": "2026-01-22",
-        "startTime": "09:00",
-        "endTime": "10:00"
-      },
-      {
         "id": "event-1769039063773-ivu6ed4pb",
         "name": "TZ performance",
         "category": "work",
@@ -86,64 +78,78 @@
         "endTime": "17:00"
       }
     ],
-    "2026-01-19": [
+    "2026-01-24": [
+      {
+        "id": "event-1769039023474-fpazmo0fv",
+        "name": "Tecnico horno",
+        "category": "home",
+        "date": "2026-01-24",
+        "startTime": "08:00",
+        "endTime": "09:00"
+      }
+    ],
+    "2026-01-12": [
       {
         "id": "event-1769039697237-ehzvqmypj",
         "name": "Pixanga Lunes",
         "category": "personal",
-        "date": "2026-01-19",
+        "date": "2026-01-12",
         "startTime": "21:00",
         "endTime": "22:00"
-      },
-      {
-        "id": "event-1769054750836-8bq1s79l6",
-        "name": "work",
-        "category": "work",
-        "date": "2026-01-19",
-        "startTime": "07:00",
-        "endTime": "08:00"
-      },
-      {
-        "id": "event-1769054756179-smyi07dpi",
-        "name": "projects",
-        "category": "projects",
-        "date": "2026-01-19",
-        "startTime": "08:00",
-        "endTime": "09:00"
-      },
-      {
-        "id": "event-1769054762627-9xwgaoy3b",
-        "name": "home",
-        "category": "home",
-        "date": "2026-01-19",
-        "startTime": "09:00",
-        "endTime": "10:00"
       },
       {
         "id": "event-1769054768631-elgk9hdcd",
         "name": "finances",
         "category": "finances",
-        "date": "2026-01-19",
+        "date": "2026-01-12",
         "startTime": "10:00",
         "endTime": "11:00"
+      }
+    ],
+    "2026-01-20": [
+      {
+        "id": "event-1769053996316-tf3a8fmje",
+        "name": "test",
+        "category": "finances",
+        "date": "2026-01-20",
+        "startTime": "09:00",
+        "endTime": "10:00"
+      }
+    ],
+    "2026-01-13": [
+      {
+        "id": "event-1769054756179-smyi07dpi",
+        "name": "projects",
+        "category": "projects",
+        "date": "2026-01-13",
+        "startTime": "08:00",
+        "endTime": "09:00"
       },
       {
         "id": "event-1769054745799-xmau907r9",
         "name": "personal",
         "category": "personal",
-        "date": "2026-01-19",
+        "date": "2026-01-13",
         "startTime": "06:00",
         "endTime": "07:00"
       }
     ],
-    "2026-01-21": [
+    "2026-01-14": [
       {
-        "id": "event-1769053996316-tf3a8fmje",
-        "name": "test",
-        "category": "finances",
-        "date": "2026-01-21",
+        "id": "event-1769054762627-9xwgaoy3b",
+        "name": "home",
+        "category": "home",
+        "date": "2026-01-14",
         "startTime": "09:00",
         "endTime": "10:00"
+      },
+      {
+        "id": "event-1769054750836-8bq1s79l6",
+        "name": "work",
+        "category": "work",
+        "date": "2026-01-14",
+        "startTime": "07:00",
+        "endTime": "08:00"
       }
     ]
   },

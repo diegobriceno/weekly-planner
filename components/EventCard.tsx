@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Event } from '@/types/event';
+import { Trash2 } from 'lucide-react';
 
 interface EventCardProps {
   event: Event;
@@ -23,25 +24,6 @@ const categoryColors: Record<string, { bg: string; text: string; dot: string; bo
   finances: { bg: 'bg-green-50', text: 'text-green-700', dot: 'bg-green-500', border: 'border-green-200' },
   other: { bg: 'bg-gray-50', text: 'text-gray-700', dot: 'bg-gray-500', border: 'border-gray-200' },
 };
-
-// Trash icon SVG component
-function TrashIcon() {
-  return (
-    <svg
-      className="w-4 h-4"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-      />
-    </svg>
-  );
-}
 
 // Delete Confirmation Modal Component
 function DeleteConfirmModal({
@@ -83,7 +65,7 @@ function DeleteConfirmModal({
       >
         <div className="flex items-start gap-3 mb-4">
           <div className="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-            <TrashIcon />
+            <Trash2 className="w-4 h-4" />
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-gray-900">Delete Event</h3>
@@ -192,7 +174,7 @@ export default function EventCard({
               className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-600 flex-shrink-0 leading-none cursor-pointer p-0.5"
               aria-label="Delete event"
             >
-              <TrashIcon />
+              <Trash2 className="w-4 h-4" />
             </button>
           </div>
           {timeDisplay && (
@@ -240,7 +222,7 @@ export default function EventCard({
             className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-600 flex-shrink-0 cursor-pointer p-0.5"
             aria-label="Delete event"
           >
-            <TrashIcon />
+            <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>

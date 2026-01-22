@@ -15,6 +15,7 @@ interface CalendarGridProps {
   onEventDragStart?: (event: Event) => void;
   onEventDragEnd?: () => void;
   draggedEvent?: Event | null;
+  onDragOverDate?: (date: string | null) => void;
 }
 
 export default function CalendarGrid({
@@ -30,6 +31,7 @@ export default function CalendarGrid({
   onEventDragStart,
   onEventDragEnd,
   draggedEvent,
+  onDragOverDate,
 }: CalendarGridProps) {
   const formatDateKey = (date: Date): string => {
     const year = date.getFullYear();
@@ -51,10 +53,25 @@ export default function CalendarGrid({
     return date.getMonth() === currentMonth;
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleDragOver = (e: React.DragEvent, _date: Date) => {
+  const handleDragOver = (e: React.DragEvent, date: Date) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+
+    // Update drag over state
+    if (onDragOverDate) {
+      const targetDateKey = formatDateKey(date);
+      onDragOverDate(targetDateKey);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Only clear if we're leaving the cell entirely
+    const relatedTarget = e.relatedTarget as HTMLElement;
+    if (!relatedTarget || !e.currentTarget.contains(relatedTarget)) {
+      if (onDragOverDate) {
+        onDragOverDate(null);
+      }
+    }
   };
 
   const handleDrop = (e: React.DragEvent, date: Date) => {
@@ -70,6 +87,11 @@ export default function CalendarGrid({
       }
     } catch (error) {
       console.error('Failed to parse dropped event:', error);
+    } finally {
+      // Clear drag over state
+      if (onDragOverDate) {
+        onDragOverDate(null);
+      }
     }
   };
 
@@ -102,6 +124,7 @@ export default function CalendarGrid({
               key={index}
               onClick={() => onDayClick(date)}
               onDragOver={(e) => handleDragOver(e, date)}
+              onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, date)}
               className={`
                 min-h-[120px] p-2 border-b border-r border-gray-200
@@ -109,7 +132,7 @@ export default function CalendarGrid({
                 ${index >= days.length - 7 ? 'border-b-0' : ''}
                 ${!currentMonthDay ? 'bg-gray-50' : 'bg-white hover:bg-gray-50'}
                 ${holiday ? 'border-t-3 border-t-red-500' : ''}
-                ${dragOverDate === dateKey ? 'bg-blue-100 ring-2 ring-blue-400' : ''}
+                ${dragOverDate === dateKey ? 'bg-gray-100' : ''}
                 transition-colors cursor-pointer
               `}
               title={holidayName || undefined}

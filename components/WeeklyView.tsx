@@ -21,6 +21,7 @@ interface WeeklyViewProps {
   onEventDragStart?: (event: Event) => void;
   onEventDragEnd?: () => void;
   draggedEvent?: Event | null;
+  onDragOverDate?: (date: string | null) => void;
 }
 
 export default function WeeklyView({
@@ -35,6 +36,7 @@ export default function WeeklyView({
   onEventDragStart,
   onEventDragEnd,
   draggedEvent,
+  onDragOverDate,
 }: WeeklyViewProps) {
   const [dropPreview, setDropPreview] = useState<{
     date: string;
@@ -80,15 +82,27 @@ export default function WeeklyView({
     const clickY = e.clientY - rect.top;
     const time = calculateTimeFromPosition(clickY, rect.height, 6);
 
+    const targetDateKey = formatDateKey(date);
+
     setDropPreview({
-      date: formatDateKey(date),
+      date: targetDateKey,
       hour: time.hour,
       minute: time.minute,
     });
+
+    // Update parent drag over state
+    if (onDragOverDate) {
+      onDragOverDate(targetDateKey);
+    }
   };
 
   const handleDragLeave = () => {
     setDropPreview(null);
+
+    // Clear parent drag over state
+    if (onDragOverDate) {
+      onDragOverDate(null);
+    }
   };
 
   const handleDrop = (e: React.DragEvent, date: Date) => {
@@ -112,6 +126,11 @@ export default function WeeklyView({
       console.error('Failed to parse dropped event:', error);
     } finally {
       setDropPreview(null);
+
+      // Clear parent drag over state
+      if (onDragOverDate) {
+        onDragOverDate(null);
+      }
     }
   };
 
