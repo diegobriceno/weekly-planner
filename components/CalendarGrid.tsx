@@ -99,6 +99,7 @@ export default function CalendarGrid({
                     onDelete={onDeleteEvent}
                     onEdit={onEditEvent}
                     compact
+                    hideTime
                   />
                 ))}
                 {dayEvents.length > 3 && (

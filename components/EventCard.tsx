@@ -9,6 +9,7 @@ interface EventCardProps {
   onEdit: (event: Event) => void;
   compact?: boolean;
   timeGrid?: boolean;
+  hideTime?: boolean;
 }
 
 const categoryColors: Record<string, { bg: string; text: string; dot: string; border: string }> = {
@@ -110,14 +111,14 @@ function DeleteConfirmModal({
   );
 }
 
-export default function EventCard({ event, onDelete, onEdit, compact = false, timeGrid = false }: EventCardProps) {
+export default function EventCard({ event, onDelete, onEdit, compact = false, timeGrid = false, hideTime = false }: EventCardProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const colors = categoryColors[event.category];
   const padding = compact ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm';
 
-  const timeDisplay = event.startTime && event.endTime
+  const timeDisplay = !hideTime && (event.startTime && event.endTime
     ? `${event.startTime} - ${event.endTime}`
-    : event.startTime || '';
+    : event.startTime || '');
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();

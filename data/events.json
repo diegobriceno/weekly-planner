@@ -147,5 +147,18 @@
       }
     ]
   },
-  "recurring": []
+  "recurring": [
+    {
+      "id": "rec-1769055541308-eqcr7vify",
+      "name": "Seguridad",
+      "category": "finances",
+      "startTime": "12:00",
+      "endTime": "13:00",
+      "startDate": "2026-01-21",
+      "recurrence": {
+        "kind": "day_of_month",
+        "day": 30
+      }
+    }
+  ]
 }
