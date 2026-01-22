@@ -76,14 +76,12 @@
         "date": "2026-01-23",
         "startTime": "15:00",
         "endTime": "17:00"
-      }
-    ],
-    "2026-01-24": [
+      },
       {
         "id": "event-1769039023474-fpazmo0fv",
         "name": "Tecnico horno",
         "category": "home",
-        "date": "2026-01-24",
+        "date": "2026-01-23",
         "startTime": "08:00",
         "endTime": "09:00"
       }
@@ -112,16 +110,16 @@
         "name": "test",
         "category": "finances",
         "date": "2026-01-20",
-        "startTime": "09:00",
-        "endTime": "10:00"
+        "startTime": "07:30",
+        "endTime": "08:30"
       },
       {
         "id": "event-1769097924590-ampkbqus3",
         "name": "tres",
         "category": "finances",
         "date": "2026-01-20",
-        "startTime": "08:00",
-        "endTime": "09:00"
+        "startTime": "08:30",
+        "endTime": "09:30"
       }
     ],
     "2026-01-13": [
@@ -160,20 +158,12 @@
         "endTime": "08:00"
       }
     ],
-    "2026-01-21": [
+    "2026-01-19": [
       {
         "id": "event-1769097914659-n8pbm6mtt",
         "name": "testing",
         "category": "work",
-        "date": "2026-01-21",
-        "startTime": "07:00",
-        "endTime": "08:00"
-      },
-      {
-        "id": "event-1769097920635-e5cgmwrhm",
-        "name": "dos",
-        "category": "projects",
-        "date": "2026-01-21",
+        "date": "2026-01-19",
         "startTime": "08:00",
         "endTime": "09:00"
       }

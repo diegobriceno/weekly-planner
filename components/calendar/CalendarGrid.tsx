@@ -1,7 +1,7 @@
 import { Event } from '@/types/event';
 import EventCard from '@/components/events/EventCard';
 import { isHoliday, getHolidayName } from '@/services/holidays';
-import { formatDateKey, isToday, isCurrentMonth as checkIsCurrentMonth } from '@/utils/dateHelpers';
+import { formatDate, isToday, isCurrentMonth as checkIsCurrentMonth } from '@/services/calendar/dateUtils';
 
 interface CalendarGridProps {
   days: Date[];
@@ -40,7 +40,7 @@ export default function CalendarGrid({
 
     // Update drag over state
     if (onDragOverDate) {
-      const targetDateKey = formatDateKey(date);
+      const targetDateKey = formatDate(date);
       onDragOverDate(targetDateKey);
     }
   };
@@ -61,7 +61,7 @@ export default function CalendarGrid({
     try {
       const eventData = e.dataTransfer.getData('application/json');
       const event = JSON.parse(eventData) as Event;
-      const targetDateKey = formatDateKey(date);
+      const targetDateKey = formatDate(date);
 
       if (onEventDrop) {
         onEventDrop(event, targetDateKey);
@@ -93,7 +93,7 @@ export default function CalendarGrid({
       {/* Calendar grid */}
       <div className="grid grid-cols-7">
         {days.map((date, index) => {
-          const dateKey = formatDateKey(date);
+          const dateKey = formatDate(date);
           const dayEvents = events[dateKey] || [];
           const today = isToday(date);
           const currentMonthDay = checkIsCurrentMonth(date, currentMonth);

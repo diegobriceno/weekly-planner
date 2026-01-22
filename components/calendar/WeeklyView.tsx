@@ -1,14 +1,11 @@
 import { useState } from 'react';
 import { Event } from '@/types/event';
 import EventCard from '@/components/events/EventCard';
-import {
-  formatHourDisplay,
-  calculateEventPosition,
-  calculateEventLayout,
-} from '@/services/eventHelpers';
+import { formatHourDisplay, calculateEventPosition } from '@/services/calendar/timeUtils';
+import { formatDate, isToday } from '@/services/calendar/dateUtils';
+import { calculateEventLayout } from '@/services/events/layout';
 import { isHoliday, getHolidayName } from '@/services/holidays';
-import { calculateTimeFromPosition } from '@/services/dragDropHelpers';
-import { formatDateKey, isToday } from '@/utils/dateHelpers';
+import { calculateTimeFromPosition } from '@/services/dragDrop/helpers';
 
 interface WeeklyViewProps {
   weekDays: Date[];
@@ -67,7 +64,7 @@ export default function WeeklyView({
     const clickY = e.clientY - rect.top;
     const time = calculateTimeFromPosition(clickY, rect.height, 6);
 
-    const targetDateKey = formatDateKey(date);
+    const targetDateKey = formatDate(date);
 
     setDropPreview({
       date: targetDateKey,
@@ -102,7 +99,7 @@ export default function WeeklyView({
       const clickY = e.clientY - rect.top;
       const time = calculateTimeFromPosition(clickY, rect.height, 6);
 
-      const targetDateKey = formatDateKey(date);
+      const targetDateKey = formatDate(date);
 
       if (onEventDrop) {
         onEventDrop(event, targetDateKey, time);
@@ -129,7 +126,7 @@ export default function WeeklyView({
         <div className="bg-gray-50" /> {/* Empty corner */}
         {weekDays.map((date, index) => {
           const today = isToday(date);
-          const dateKey = formatDateKey(date);
+          const dateKey = formatDate(date);
           const holiday = isHoliday(dateKey);
           const holidayName = getHolidayName(dateKey);
           return (
@@ -172,7 +169,7 @@ export default function WeeklyView({
 
         {/* Day columns */}
         {weekDays.map((date, dayIndex) => {
-          const dateKey = formatDateKey(date);
+          const dateKey = formatDate(date);
           const dayEvents = events[dateKey] || [];
           // Only show events with both start and end time
           const timedEvents = dayEvents.filter(e => e.startTime && e.endTime);

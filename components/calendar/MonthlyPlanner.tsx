@@ -10,26 +10,32 @@ import {
   addEventToMonth,
   updateEventInMonth,
   deleteEventFromMonth,
-  getMonthDays,
-  getWeekDays,
-  formatDate,
-  getMonthName,
-  getWeekDayNames,
-  expandRecurringEventsForDates,
-  mergeEvents,
   moveEventToNewDate,
-} from '@/services/eventHelpers';
+} from '@/services/events/operations';
 import {
   fetchAllEvents,
   createEventApi,
   updateEventApi,
   deleteEventApi,
-} from '@/services/eventApi';
+} from '@/services/events/api';
+import {
+  expandRecurringEventsForDates,
+  mergeEvents,
+} from '@/services/events/recurring';
+import {
+  getMonthDays,
+  getWeekDays,
+} from '@/services/calendar/calendarUtils';
+import {
+  formatDate,
+  getMonthName,
+  getWeekDayNames,
+} from '@/services/calendar/dateUtils';
 import {
   calculateEventDuration,
   validateTimeWithinBounds,
   calculateNewEndTime,
-} from '@/services/dragDropHelpers';
+} from '@/services/dragDrop/helpers';
 
 /**
  * MonthlyPlanner - Container Component

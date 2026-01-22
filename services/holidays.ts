@@ -2,6 +2,8 @@
  * Holiday service for identifying Peruvian holidays in 2026
  */
 
+import { formatDate } from '@/services/calendar/dateUtils';
+
 interface Holiday {
   date: string; // YYYY-MM-DD format
   name: string;
@@ -34,7 +36,7 @@ const holidayMap = new Map<string, string>(
  * Checks if a given date is a holiday
  */
 export function isHoliday(date: Date | string): boolean {
-  const dateKey = typeof date === 'string' ? date : formatDateKey(date);
+  const dateKey = typeof date === 'string' ? date : formatDate(date);
   return holidayMap.has(dateKey);
 }
 
@@ -42,16 +44,6 @@ export function isHoliday(date: Date | string): boolean {
  * Gets the holiday name for a given date, or null if not a holiday
  */
 export function getHolidayName(date: Date | string): string | null {
-  const dateKey = typeof date === 'string' ? date : formatDateKey(date);
+  const dateKey = typeof date === 'string' ? date : formatDate(date);
   return holidayMap.get(dateKey) || null;
-}
-
-/**
- * Formats a Date object to YYYY-MM-DD string
- */
-function formatDateKey(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
 }
