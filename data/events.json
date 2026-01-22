@@ -20,14 +20,6 @@
     ],
     "2026-01-22": [
       {
-        "id": "event-1769039063773-ivu6ed4pb",
-        "name": "TZ performance",
-        "category": "work",
-        "date": "2026-01-22",
-        "startTime": "11:00",
-        "endTime": "13:00"
-      },
-      {
         "id": "event-1769039349938-ijhhh0nnp",
         "name": "Tz commments",
         "category": "work",
@@ -58,6 +50,14 @@
         "date": "2026-01-22",
         "startTime": "06:00",
         "endTime": "07:00"
+      },
+      {
+        "id": "event-1769039063773-ivu6ed4pb",
+        "name": "TZ performance",
+        "category": "work",
+        "date": "2026-01-22",
+        "startTime": "11:00",
+        "endTime": "13:00"
       }
     ],
     "2026-01-23": [
@@ -114,6 +114,14 @@
         "date": "2026-01-20",
         "startTime": "09:00",
         "endTime": "10:00"
+      },
+      {
+        "id": "event-1769097924590-ampkbqus3",
+        "name": "tres",
+        "category": "finances",
+        "date": "2026-01-20",
+        "startTime": "08:00",
+        "endTime": "09:00"
       }
     ],
     "2026-01-13": [
@@ -151,6 +159,24 @@
         "startTime": "07:00",
         "endTime": "08:00"
       }
+    ],
+    "2026-01-21": [
+      {
+        "id": "event-1769097914659-n8pbm6mtt",
+        "name": "testing",
+        "category": "work",
+        "date": "2026-01-21",
+        "startTime": "07:00",
+        "endTime": "08:00"
+      },
+      {
+        "id": "event-1769097920635-e5cgmwrhm",
+        "name": "dos",
+        "category": "projects",
+        "date": "2026-01-21",
+        "startTime": "08:00",
+        "endTime": "09:00"
+      }
     ]
   },
   "recurring": [
@@ -164,6 +190,22 @@
       "recurrence": {
         "kind": "day_of_month",
         "day": 30
+      }
+    },
+    {
+      "id": "rec-1769097941334-soytp0uut",
+      "name": "repeat",
+      "category": "work",
+      "startTime": "11:00",
+      "endTime": "12:00",
+      "startDate": "2026-01-20",
+      "endDate": "2026-01-31",
+      "recurrence": {
+        "kind": "day_of_week",
+        "day": [
+          2,
+          3
+        ]
       }
     }
   ]

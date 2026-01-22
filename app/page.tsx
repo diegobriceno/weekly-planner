@@ -1,4 +1,4 @@
-import MonthlyPlanner from '@/components/MonthlyPlanner';
+import MonthlyPlanner from '@/components/calendar/MonthlyPlanner';
 
 export default function Home() {
   return <MonthlyPlanner />;

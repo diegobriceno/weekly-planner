@@ -5,7 +5,7 @@ import { Category, Event, MonthEvents, RecurrenceRule, RecurringEvent, StoredEve
 import CalendarHeader from './CalendarHeader';
 import CalendarGrid from './CalendarGrid';
 import WeeklyView from './WeeklyView';
-import AddEventModal from './AddEventModal';
+import AddEventModal from '@/components/events/AddEventModal';
 import {
   addEventToMonth,
   updateEventInMonth,

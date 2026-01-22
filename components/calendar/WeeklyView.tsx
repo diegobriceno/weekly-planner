@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Event } from '@/types/event';
-import EventCard from './EventCard';
+import EventCard from '@/components/events/EventCard';
 import {
   formatHourDisplay,
   calculateEventPosition,
@@ -8,6 +8,7 @@ import {
 } from '@/services/eventHelpers';
 import { isHoliday, getHolidayName } from '@/services/holidays';
 import { calculateTimeFromPosition } from '@/services/dragDropHelpers';
+import { formatDateKey, isToday } from '@/utils/dateHelpers';
 
 interface WeeklyViewProps {
   weekDays: Date[];
@@ -43,22 +44,6 @@ export default function WeeklyView({
     hour: number;
     minute: number;
   } | null>(null);
-
-  const formatDateKey = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
-  const isToday = (date: Date): boolean => {
-    const today = new Date();
-    return (
-      date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear()
-    );
-  };
 
   const calculateClickedHour = (e: React.MouseEvent<HTMLDivElement>): number => {
     const target = e.currentTarget;

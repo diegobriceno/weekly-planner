@@ -1,5 +1,5 @@
-import Breadcrumb from './Breadcrumb';
-import CategoryFilter from './CategoryFilter';
+import Breadcrumb from '@/components/navigation/Breadcrumb';
+import CategoryFilter from '@/components/filters/CategoryFilter';
 import { Category } from '@/types/event';
 
 interface CalendarHeaderProps {
