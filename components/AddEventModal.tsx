@@ -6,6 +6,7 @@ import { Category, Event, RecurrenceRule, RecurringEvent } from '@/types/event';
 interface AddEventModalProps {
   isOpen: boolean;
   selectedDate: Date | null;
+  selectedHour: number | null;
   editingEvent: Event | null;
   recurringSeries: RecurringEvent[];
   onClose: () => void;
@@ -19,7 +20,7 @@ interface AddEventModalProps {
   }) => void;
 }
 
-const categories: Category[] = ['work', 'projects', 'personal',  'home', 'benja', 'sophi', 'other'];
+const categories: Category[] = ['work', 'projects', 'personal',  'home', 'finances', 'other'];
 const weekDayOptions: { label: string; value: number }[] = [
   { label: 'Sunday', value: 0 },
   { label: 'Monday', value: 1 },
@@ -111,6 +112,7 @@ const isEndTimeValid = (
 export default function AddEventModal({
   isOpen,
   selectedDate,
+  selectedHour,
   editingEvent,
   recurringSeries,
   onClose,
@@ -197,14 +199,21 @@ export default function AddEventModal({
       }
     } else {
       setName('');
-      setCategory('personal');
-      // Set default time: 9:00 AM - 10:00 AM
-      setStartHour('09');
+      setCategory('work');
+
+      // Use selectedHour if available, otherwise default to 9 AM
+      const defaultStartHour = selectedHour ?? 9;
+      const defaultStartHourStr = defaultStartHour.toString().padStart(2, '0');
+      const defaultEndHour = Math.min(defaultStartHour + 1, 22);
+      const defaultEndHourStr = defaultEndHour.toString().padStart(2, '0');
+
+      setStartHour(defaultStartHourStr);
       setStartMinute('00');
-      setEndHour('10');
+      setEndHour(defaultEndHourStr);
       setEndMinute('00');
-      setStartTime('09:00');
-      setEndTime('10:00');
+      setStartTime(`${defaultStartHourStr}:00`);
+      setEndTime(`${defaultEndHourStr}:00`);
+
       setRepeatMode('none');
       setEndDate('');
       // defaults based on selectedDate (if present)
@@ -216,7 +225,7 @@ export default function AddEventModal({
         setRepeatDayOfMonth(1);
       }
     }
-  }, [editingEvent, recurringSeries, selectedDate]);
+  }, [editingEvent, recurringSeries, selectedDate, selectedHour]);
 
   if (!isOpen || !selectedDate) return null;
 
@@ -256,7 +265,7 @@ export default function AddEventModal({
         endDate: endDate || undefined,
       });
       setName('');
-      setCategory('personal');
+      setCategory('work');
       setStartHour('');
       setStartMinute('00');
       setEndHour('');

@@ -3,8 +3,7 @@ export type Category =
   | 'projects'
   | 'personal'
   | 'home'
-  | 'benja'
-  | 'sophi'
+  | 'finances'
   | 'other';
 
 export type RecurrenceRule =

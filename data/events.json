@@ -4,7 +4,7 @@
       {
         "id": "event-1769008684077-kf3iezjwg",
         "name": "Ensayo Baile",
-        "category": "sophi",
+        "category": "personal",
         "date": "2026-01-25",
         "startTime": "19:00",
         "endTime": "20:30"
@@ -72,7 +72,7 @@
       {
         "id": "event-1769039042457-n1xdw6eqe",
         "name": "Recoger docs",
-        "category": "benja",
+        "category": "finances",
         "date": "2026-01-23",
         "startTime": "11:00",
         "endTime": "12:00"
@@ -94,6 +94,56 @@
         "date": "2026-01-19",
         "startTime": "21:00",
         "endTime": "22:00"
+      },
+      {
+        "id": "event-1769054745799-xmau907r9",
+        "name": "personal",
+        "category": "personal",
+        "date": "2026-01-19",
+        "startTime": "06:00",
+        "endTime": "07:00"
+      },
+      {
+        "id": "event-1769054750836-8bq1s79l6",
+        "name": "work",
+        "category": "work",
+        "date": "2026-01-19",
+        "startTime": "07:00",
+        "endTime": "08:00"
+      },
+      {
+        "id": "event-1769054756179-smyi07dpi",
+        "name": "projects",
+        "category": "projects",
+        "date": "2026-01-19",
+        "startTime": "08:00",
+        "endTime": "09:00"
+      },
+      {
+        "id": "event-1769054762627-9xwgaoy3b",
+        "name": "home",
+        "category": "home",
+        "date": "2026-01-19",
+        "startTime": "09:00",
+        "endTime": "10:00"
+      },
+      {
+        "id": "event-1769054768631-elgk9hdcd",
+        "name": "finances",
+        "category": "finances",
+        "date": "2026-01-19",
+        "startTime": "10:00",
+        "endTime": "11:00"
+      }
+    ],
+    "2026-01-21": [
+      {
+        "id": "event-1769053996316-tf3a8fmje",
+        "name": "test",
+        "category": "finances",
+        "date": "2026-01-21",
+        "startTime": "09:00",
+        "endTime": "10:00"
       }
     ]
   },

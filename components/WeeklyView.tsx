@@ -10,7 +10,7 @@ import { isHoliday, getHolidayName } from '@/services/holidays';
 interface WeeklyViewProps {
   weekDays: Date[];
   events: { [date: string]: Event[] };
-  onDayClick: (date: Date) => void;
+  onDayClick: (date: Date, hour?: number) => void;
   onDeleteEvent: (eventId: string) => void;
   onEditEvent: (event: Event) => void;
 }
@@ -38,6 +38,19 @@ export default function WeeklyView({
     );
   };
 
+  const calculateClickedHour = (e: React.MouseEvent<HTMLDivElement>): number => {
+    const target = e.currentTarget;
+    const rect = target.getBoundingClientRect();
+    const clickY = e.clientY - rect.top;
+
+    // Each hour = 80px, grid starts at 6 AM (16 rows total)
+    const hourHeight = rect.height / 16; // Dynamic for responsiveness
+    const hourIndex = Math.floor(clickY / hourHeight);
+    const clickedHour = Math.min(Math.max(hourIndex + 6, 6), 21);
+
+    return clickedHour;
+  };
+
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const hours = Array.from({ length: 16 }, (_, i) => i + 6); // 6am to 9pm (labels)
 
@@ -55,7 +68,7 @@ export default function WeeklyView({
             <div
               key={index}
               className={`p-3 text-center border-l border-gray-200 ${
-                holiday ? 'border-t-2 border-t-red-500' : ''
+                holiday ? 'border-t-3 border-t-red-500' : ''
               }`}
               title={holidayName || undefined}
             >
@@ -103,7 +116,10 @@ export default function WeeklyView({
               className={`relative border-l border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors ${
                 holiday ? 'bg-red-50/30' : ''
               }`}
-              onClick={() => onDayClick(date)}
+              onClick={(e) => {
+                const hour = calculateClickedHour(e);
+                onDayClick(date, hour);
+              }}
             >
               {/* Grid lines (hour rows) */}
               {hours.map(hour => (

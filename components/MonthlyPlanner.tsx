@@ -36,6 +36,7 @@ export default function MonthlyPlanner() {
   const [storedEvents, setStoredEvents] = useState<StoredEvents>({ byDate: {}, recurring: [] });
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedHour, setSelectedHour] = useState<number | null>(null);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [viewMode, setViewMode] = useState<'month' | 'week'>('week');
   const [currentWeekStart, setCurrentWeekStart] = useState(today);
@@ -114,8 +115,9 @@ export default function MonthlyPlanner() {
     setModalOpen(true);
   };
 
-  const handleDayClick = (date: Date) => {
+  const handleDayClick = (date: Date, hour?: number) => {
     setSelectedDate(date);
+    setSelectedHour(hour ?? null);
     setModalOpen(true);
   };
 
@@ -229,6 +231,7 @@ export default function MonthlyPlanner() {
   const handleCloseModal = () => {
     setModalOpen(false);
     setEditingEvent(null);
+    setSelectedHour(null);
   };
 
   const handleCategoryToggle = (category: Category | 'all') => {
@@ -325,6 +328,7 @@ export default function MonthlyPlanner() {
       <AddEventModal
         isOpen={modalOpen}
         selectedDate={selectedDate}
+        selectedHour={selectedHour}
         editingEvent={editingEvent}
         recurringSeries={storedEvents.recurring}
         onClose={handleCloseModal}

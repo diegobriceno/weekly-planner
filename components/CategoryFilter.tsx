@@ -11,8 +11,7 @@ const categoryLabels: Record<Category | 'all', string> = {
   projects: 'Projects',
   personal: 'Personal',
   home: 'Home',
-  benja: 'Benja',
-  sophi: 'Sophi',
+  finances: 'Finances',
   other: 'Other',
 };
 
@@ -20,9 +19,8 @@ const categoryColors: Record<Category, string> = {
   work: 'bg-blue-100 text-blue-700 border-blue-300',
   projects: 'bg-orange-100 text-orange-700 border-orange-300',
   personal: 'bg-yellow-100 text-yellow-700 border-yellow-300',
-  home: 'bg-teal-100 text-teal-700 border-teal-300',
-  benja: 'bg-green-100 text-green-700 border-green-300',
-  sophi: 'bg-rose-100 text-rose-700 border-rose-300',
+  home: 'bg-red-100 text-red-700 border-red-300',
+  finances: 'bg-green-100 text-green-700 border-green-300',
   other: 'bg-gray-100 text-gray-700 border-gray-300',
 };
 
@@ -30,7 +28,7 @@ export default function CategoryFilter({
   selectedCategories,
   onCategoryToggle,
 }: CategoryFilterProps) {
-  const categories: (Category | 'all')[] = ['all', 'work', 'projects', 'personal', 'home', 'benja', 'sophi', 'other'];
+  const categories: (Category | 'all')[] = ['all', 'work', 'projects', 'personal', 'home', 'finances', 'other'];
   const allSelected = selectedCategories.length === 0;
 
   return (
