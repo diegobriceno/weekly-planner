@@ -138,3 +138,4 @@ npm run lint
 - **Tailwind CSS 4**: Utility-first CSS framework
 - **ESLint 9**: Linting with Next.js configs
 - **lucide-react**: Icon library for UI components
+- **framer-motion**: Animation library for smooth UI transitions and interactions

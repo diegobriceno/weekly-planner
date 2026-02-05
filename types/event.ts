@@ -27,6 +27,8 @@ export interface Event {
   endTime?: string; // Optional end time in HH:MM format
   /** If present, this event is an instance of a recurring series. */
   seriesId?: string;
+  /** Whether the event is marked as completed */
+  completed?: boolean;
 }
 
 export type MonthEvents = {

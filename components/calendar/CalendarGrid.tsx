@@ -1,3 +1,6 @@
+'use client';
+
+import { motion } from 'framer-motion';
 import { Event } from '@/types/event';
 import EventCard from '@/components/events/EventCard';
 import { isHoliday, getHolidayName } from '@/services/holidays';
@@ -11,6 +14,7 @@ interface CalendarGridProps {
   onDayClick: (date: Date) => void;
   onDeleteEvent: (eventId: string) => void;
   onEditEvent: (event: Event) => void;
+  onToggleComplete: (eventId: string) => void;
   onEventDrop?: (event: Event, targetDate: string) => void;
   dragOverDate?: string | null;
   onEventDragStart?: (event: Event) => void;
@@ -27,6 +31,7 @@ export default function CalendarGrid({
   onDayClick,
   onDeleteEvent,
   onEditEvent,
+  onToggleComplete,
   onEventDrop,
   dragOverDate,
   onEventDragStart,
@@ -91,7 +96,18 @@ export default function CalendarGrid({
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7">
+      <motion.div
+        className="grid grid-cols-7"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          visible: {
+            transition: {
+              staggerChildren: 0.01
+            }
+          }
+        }}
+      >
         {days.map((date, index) => {
           const dateKey = formatDate(date);
           const dayEvents = events[dateKey] || [];
@@ -101,8 +117,12 @@ export default function CalendarGrid({
           const holidayName = getHolidayName(dateKey);
 
           return (
-            <div
+            <motion.div
               key={index}
+              variants={{
+                hidden: { opacity: 0, y: 10 },
+                visible: { opacity: 1, y: 0 }
+              }}
               onClick={() => onDayClick(date)}
               onDragOver={(e) => handleDragOver(e, date)}
               onDragLeave={handleDragLeave}
@@ -137,6 +157,7 @@ export default function CalendarGrid({
                     event={event}
                     onDelete={onDeleteEvent}
                     onEdit={onEditEvent}
+                    onToggleComplete={onToggleComplete}
                     onDragStart={onEventDragStart}
                     onDragEnd={onEventDragEnd}
                     isDragging={draggedEvent?.id === event.id}
@@ -150,10 +171,10 @@ export default function CalendarGrid({
                   </p>
                 )}
               </div>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
     </div>
   );
 }

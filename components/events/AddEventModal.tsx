@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Category, Event, RecurrenceRule, RecurringEvent } from '@/types/event';
 import { parseTime, combineTime, calculateEndTime, isEndTimeValid } from '@/utils/timeHelpers';
 import { categories, startHourOptions, endHourOptions } from '@/constants/eventConstants';
@@ -17,6 +18,7 @@ interface AddEventModalProps {
   onSubmit: (input: {
     name: string;
     category: Category;
+    date?: string;
     startTime?: string;
     endTime?: string;
     recurrence?: RecurrenceRule;
@@ -35,6 +37,7 @@ export default function AddEventModal({
 }: AddEventModalProps) {
   const [name, setName] = useState('');
   const [category, setCategory] = useState<Category>('personal');
+  const [eventDate, setEventDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [startHour, setStartHour] = useState('');
@@ -82,6 +85,7 @@ export default function AddEventModal({
     if (editingEvent) {
       setName(editingEvent.name);
       setCategory(editingEvent.category);
+      setEventDate(editingEvent.date);
 
       // Parse start time
       const parsedStart = parseTime(editingEvent.startTime || '');
@@ -115,6 +119,7 @@ export default function AddEventModal({
     } else {
       setName('');
       setCategory('work');
+      setEventDate('');
 
       // Use selectedHour if available, otherwise default to 9 AM
       const defaultStartHour = selectedHour ?? 9;
@@ -141,8 +146,6 @@ export default function AddEventModal({
       }
     }
   }, [editingEvent, recurringSeries, selectedDate, selectedHour]);
-
-  if (!isOpen || !selectedDate) return null;
 
   // Validate that end time is after start time
   const timeIsValid = isEndTimeValid(startHour, startMinute, endHour, endMinute);
@@ -174,6 +177,7 @@ export default function AddEventModal({
       onSubmit({
         name: trimmedName,
         category,
+        ...(isEditing && !isEditingSeries && eventDate ? { date: eventDate } : {}),
         startTime: startTime,
         endTime: endTime,
         recurrence,
@@ -181,6 +185,7 @@ export default function AddEventModal({
       });
       setName('');
       setCategory('work');
+      setEventDate('');
       setStartHour('');
       setStartMinute('00');
       setEndHour('');
@@ -194,26 +199,37 @@ export default function AddEventModal({
     }
   };
 
-  const formattedDate = selectedDate.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-
   const isEditing = !!editingEvent;
   const seriesId = editingEvent?.seriesId || editingEvent?.id || null;
   const editingSeries = !!(isEditing && seriesId && recurringSeries.some((r) => r.id === seriesId));
 
   return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-lg p-6 max-w-md w-full shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <AnimatePresence>
+      {isOpen && selectedDate && (() => {
+        const formattedDate = selectedDate.toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
+
+        return (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            transition={{ duration: 0.3, type: 'spring', damping: 25, stiffness: 300 }}
+            className="bg-white rounded-lg p-6 max-w-md w-full shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
         <h2 className="text-xl font-semibold text-gray-900 mb-2">
           {isEditing ? 'Edit Event' : 'Add Event'}
         </h2>
@@ -239,6 +255,22 @@ export default function AddEventModal({
               autoFocus
             />
           </div>
+
+          {/* Date field - only show for editing non-recurring events */}
+          {isEditing && !editingSeries && (
+            <div>
+              <label htmlFor="eventDate" className="block text-sm font-medium text-gray-700 mb-2">
+                Date
+              </label>
+              <input
+                type="date"
+                id="eventDate"
+                value={eventDate}
+                onChange={(e) => setEventDate(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+              />
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
             <TimeSelector
@@ -323,7 +355,10 @@ export default function AddEventModal({
             </button>
           </div>
         </form>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+        );
+      })()}
+    </AnimatePresence>
   );
 }

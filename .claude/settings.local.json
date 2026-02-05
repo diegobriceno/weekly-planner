@@ -8,7 +8,9 @@
       "Bash(npm run build:*)",
       "Bash(kill:*)",
       "Bash(npm install lucide-react)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(npm install:*)",
+      "Bash(dir:*)"
     ]
   }
 }

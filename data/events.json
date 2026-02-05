@@ -1,171 +1,261 @@
 {
   "byDate": {
-    "2026-01-25": [
+    "2026-01-26": [
       {
-        "id": "event-1769008684077-kf3iezjwg",
-        "name": "Ensayo Baile",
-        "category": "personal",
-        "date": "2026-01-25",
-        "startTime": "19:00",
-        "endTime": "20:30"
+        "id": "event-1769438402320-dkrbk2khx",
+        "name": "Registrar tempo",
+        "category": "work",
+        "date": "2026-01-26",
+        "startTime": "09:30",
+        "endTime": "10:00",
+        "completed": true
       },
       {
-        "id": "event-1769010400962-l6k89hzsd",
-        "name": "Viaje TCQ",
+        "id": "event-1769438413797-fgff89z40",
+        "name": "Correo fuera de oficina",
+        "category": "work",
+        "date": "2026-01-26",
+        "startTime": "10:00",
+        "endTime": "10:30",
+        "completed": true
+      },
+      {
+        "id": "event-1769438653001-6xuv5ilwg",
+        "name": "Pixanga",
+        "category": "personal",
+        "date": "2026-01-26",
+        "startTime": "21:30",
+        "endTime": "22:00",
+        "completed": true
+      },
+      {
+        "id": "event-1769450144338-bir69w6r6",
+        "name": "Pago Matricula",
         "category": "home",
-        "date": "2026-01-25",
-        "startTime": "15:00",
-        "endTime": "17:00"
-      }
-    ],
-    "2026-01-22": [
-      {
-        "id": "event-1769039349938-ijhhh0nnp",
-        "name": "Tz commments",
-        "category": "work",
-        "date": "2026-01-22",
-        "startTime": "18:00",
-        "endTime": "19:00"
-      },
-      {
-        "id": "event-1769039362112-vt40cyot7",
-        "name": "Cursor course",
-        "category": "projects",
-        "date": "2026-01-22",
-        "startTime": "19:00",
-        "endTime": "20:00"
-      },
-      {
-        "id": "event-1769039380725-9zg7uktlq",
-        "name": "Side project Calendar",
-        "category": "personal",
-        "date": "2026-01-22",
-        "startTime": "20:00",
-        "endTime": "21:00"
-      },
-      {
-        "id": "event-1769039667952-qjph7e7bl",
-        "name": "Salir a correr",
-        "category": "personal",
-        "date": "2026-01-22",
-        "startTime": "06:00",
-        "endTime": "07:00"
-      },
-      {
-        "id": "event-1769039063773-ivu6ed4pb",
-        "name": "TZ performance",
-        "category": "work",
-        "date": "2026-01-22",
+        "date": "2026-01-26",
         "startTime": "11:00",
-        "endTime": "13:00"
+        "endTime": "11:30",
+        "completed": true
       }
     ],
-    "2026-01-23": [
+    "2026-01-30": [
       {
-        "id": "event-1769039042457-n1xdw6eqe",
-        "name": "Recoger docs",
+        "id": "event-1769437681838-lvufajcy0",
+        "name": "Pago Esme",
         "category": "finances",
-        "date": "2026-01-23",
+        "date": "2026-01-30",
+        "startTime": "07:30",
+        "endTime": "08:00",
+        "completed": true
+      },
+      {
+        "id": "event-1769782461044-pyapwwv2j",
+        "name": "Ir al banco",
+        "category": "home",
+        "date": "2026-01-30",
+        "startTime": "09:00",
+        "endTime": "09:30",
+        "completed": true
+      },
+      {
+        "id": "event-1769783259046-aci2ek1at",
+        "name": "Tz A11y",
+        "category": "work",
+        "date": "2026-01-30",
+        "startTime": "10:00",
+        "endTime": "11:00",
+        "completed": true
+      }
+    ],
+    "2026-01-29": [
+      {
+        "id": "event-1769442192780-8j1w4tuj1",
+        "name": "Matricula Xto Rey",
+        "category": "home",
+        "date": "2026-01-29",
+        "startTime": "12:30",
+        "endTime": "13:00",
+        "completed": true
+      },
+      {
+        "id": "event-1769438431141-2hylx67n7",
+        "name": "Ticket CMS",
+        "category": "work",
+        "date": "2026-01-29",
+        "startTime": "09:00",
+        "endTime": "10:30",
+        "completed": true
+      },
+      {
+        "id": "event-1769690762591-c6tigd5t3",
+        "name": "Intro to Claude",
+        "category": "work",
+        "date": "2026-01-29",
+        "startTime": "15:00",
+        "endTime": "16:00",
+        "completed": true
+      }
+    ],
+    "2026-02-03": [
+      {
+        "id": "event-1769442230530-s6u5pmezu",
+        "name": "Ensayo Baile",
+        "category": "home",
+        "date": "2026-02-03",
+        "startTime": "20:00",
+        "endTime": "21:00",
+        "completed": true
+      },
+      {
+        "id": "event-1769690241701-e6ixipg99",
+        "name": "Mercado",
+        "category": "home",
+        "date": "2026-02-03",
+        "startTime": "07:30",
+        "endTime": "08:00",
+        "completed": true
+      },
+      {
+        "id": "event-1769442215828-jxr2nppwh",
+        "name": "Utiles Escolares",
+        "category": "home",
+        "date": "2026-02-03",
+        "startTime": "17:00",
+        "endTime": "18:00",
+        "completed": false
+      },
+      {
+        "id": "event-1769783282223-nz43k4ox2",
+        "name": "Planner supabase",
+        "category": "projects",
+        "date": "2026-02-03",
         "startTime": "11:00",
         "endTime": "12:00"
       },
       {
-        "id": "event-1769039083619-yo36ea4j4",
-        "name": "Viaje MOQ",
-        "category": "home",
-        "date": "2026-01-23",
-        "startTime": "15:00",
-        "endTime": "17:00"
+        "id": "event-1770129124730-0bw74s25w",
+        "name": "Info Tab",
+        "category": "work",
+        "date": "2026-02-03",
+        "startTime": "09:30",
+        "endTime": "10:30",
+        "completed": true
       },
+      {
+        "id": "event-1769039042457-n1xdw6eqe",
+        "name": "Recoger docs",
+        "category": "home",
+        "date": "2026-02-03",
+        "startTime": "12:00",
+        "endTime": "12:30"
+      }
+    ],
+    "2026-02-02": [
+      {
+        "id": "event-1769782499941-h026fj5lv",
+        "name": "Pixanga",
+        "category": "personal",
+        "date": "2026-02-02",
+        "startTime": "21:00",
+        "endTime": "22:00",
+        "completed": true
+      },
+      {
+        "id": "event-1769438596379-irk7a566p",
+        "name": "Almuerzo semana",
+        "category": "home",
+        "date": "2026-02-02",
+        "startTime": "07:30",
+        "endTime": "08:00",
+        "completed": false
+      },
+      {
+        "id": "event-1769633924168-s5o2u58f1",
+        "name": "DNI biometrico",
+        "category": "home",
+        "date": "2026-02-02",
+        "startTime": "06:30",
+        "endTime": "07:00"
+      },
+      {
+        "id": "event-1769690217826-60tg9nver",
+        "name": "Claude Code",
+        "category": "projects",
+        "date": "2026-02-02",
+        "startTime": "11:00",
+        "endTime": "12:00"
+      },
+      {
+        "id": "event-1770047423243-4rn95tvrr",
+        "name": "Pediatra",
+        "category": "home",
+        "date": "2026-02-02",
+        "startTime": "15:45",
+        "endTime": "17:00",
+        "completed": true
+      }
+    ],
+    "2026-02-06": [
       {
         "id": "event-1769039023474-fpazmo0fv",
         "name": "Tecnico horno",
         "category": "home",
-        "date": "2026-01-23",
-        "startTime": "08:00",
-        "endTime": "09:00"
+        "date": "2026-02-06",
+        "startTime": "07:00",
+        "endTime": "07:30",
+        "completed": false
       }
     ],
-    "2026-01-12": [
+    "2026-02-04": [
       {
-        "id": "event-1769039697237-ehzvqmypj",
-        "name": "Pixanga Lunes",
+        "id": "event-1770047447444-1u8ijlvat",
+        "name": "Fronton",
         "category": "personal",
-        "date": "2026-01-12",
+        "date": "2026-02-04",
         "startTime": "21:00",
         "endTime": "22:00"
       },
       {
-        "id": "event-1769054768631-elgk9hdcd",
-        "name": "finances",
-        "category": "finances",
-        "date": "2026-01-12",
+        "id": "event-1770047500033-ebn0zd0p3",
+        "name": "1o1 Kevin",
+        "category": "work",
+        "date": "2026-02-04",
+        "startTime": "11:00",
+        "endTime": "11:30"
+      },
+      {
+        "id": "event-1769462630211-gu7xa4l9w",
+        "name": "Uniforme Colegio",
+        "category": "home",
+        "date": "2026-02-04",
+        "startTime": "17:00",
+        "endTime": "18:00"
+      },
+      {
+        "id": "event-1770177215703-fqo74am6u",
+        "name": "Karate Benja",
+        "category": "home",
+        "date": "2026-02-04",
         "startTime": "10:00",
         "endTime": "11:00"
       }
     ],
-    "2026-01-20": [
+    "2026-02-13": [
       {
-        "id": "event-1769053996316-tf3a8fmje",
-        "name": "test",
-        "category": "finances",
-        "date": "2026-01-20",
-        "startTime": "07:30",
-        "endTime": "08:30"
-      },
-      {
-        "id": "event-1769097924590-ampkbqus3",
-        "name": "tres",
-        "category": "finances",
-        "date": "2026-01-20",
-        "startTime": "08:30",
-        "endTime": "09:30"
-      }
-    ],
-    "2026-01-13": [
-      {
-        "id": "event-1769054756179-smyi07dpi",
-        "name": "projects",
-        "category": "projects",
-        "date": "2026-01-13",
-        "startTime": "08:00",
-        "endTime": "09:00"
-      },
-      {
-        "id": "event-1769054745799-xmau907r9",
-        "name": "personal",
-        "category": "personal",
-        "date": "2026-01-13",
-        "startTime": "06:00",
-        "endTime": "07:00"
-      }
-    ],
-    "2026-01-14": [
-      {
-        "id": "event-1769054762627-9xwgaoy3b",
-        "name": "home",
-        "category": "home",
-        "date": "2026-01-14",
-        "startTime": "09:00",
-        "endTime": "10:00"
-      },
-      {
-        "id": "event-1769054750836-8bq1s79l6",
-        "name": "work",
+        "id": "event-1770047559203-nc1vaq7my",
+        "name": "1o1 JC",
         "category": "work",
-        "date": "2026-01-14",
-        "startTime": "07:00",
-        "endTime": "08:00"
-      }
-    ],
-    "2026-01-19": [
+        "date": "2026-02-13",
+        "startTime": "16:00",
+        "endTime": "16:30"
+      },
       {
-        "id": "event-1769097914659-n8pbm6mtt",
-        "name": "testing",
+        "id": "event-1770047587351-zoet40t1x",
+        "name": "Bite & Bytes",
         "category": "work",
-        "date": "2026-01-19",
-        "startTime": "08:00",
-        "endTime": "09:00"
+        "date": "2026-02-13",
+        "startTime": "12:00",
+        "endTime": "13:00"
       }
     ]
   },
@@ -174,8 +264,8 @@
       "id": "rec-1769055541308-eqcr7vify",
       "name": "Seguridad",
       "category": "finances",
-      "startTime": "12:00",
-      "endTime": "13:00",
+      "startTime": "08:00",
+      "endTime": "08:30",
       "startDate": "2026-01-21",
       "recurrence": {
         "kind": "day_of_month",
@@ -183,18 +273,33 @@
       }
     },
     {
-      "id": "rec-1769097941334-soytp0uut",
-      "name": "repeat",
+      "id": "rec-1769170254063-e78d4pdhc",
+      "name": "Internet",
+      "category": "finances",
+      "startTime": "08:30",
+      "endTime": "09:00",
+      "startDate": "2026-01-30",
+      "recurrence": {
+        "kind": "day_of_month",
+        "day": 30
+      }
+    },
+    {
+      "id": "rec-1770047521266-3mzorfnf1",
+      "name": "Daily",
       "category": "work",
-      "startTime": "11:00",
-      "endTime": "12:00",
-      "startDate": "2026-01-20",
-      "endDate": "2026-01-31",
+      "startTime": "10:30",
+      "endTime": "11:00",
+      "startDate": "2026-02-02",
+      "endDate": "2026-02-13",
       "recurrence": {
         "kind": "day_of_week",
         "day": [
+          1,
           2,
-          3
+          3,
+          4,
+          5
         ]
       }
     }

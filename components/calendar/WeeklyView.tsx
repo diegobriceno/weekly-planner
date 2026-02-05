@@ -1,4 +1,7 @@
+'use client';
+
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Event } from '@/types/event';
 import EventCard from '@/components/events/EventCard';
 import { formatHourDisplay, calculateEventPosition } from '@/services/calendar/timeUtils';
@@ -13,6 +16,7 @@ interface WeeklyViewProps {
   onDayClick: (date: Date, hour?: number) => void;
   onDeleteEvent: (eventId: string) => void;
   onEditEvent: (event: Event) => void;
+  onToggleComplete: (eventId: string) => void;
   onEventDrop?: (event: Event, targetDate: string, targetTime: { hour: number; minute: number }) => void;
   dragOverDate?: string | null;
   dragOverTime?: { hour: number; minute: number } | null;
@@ -28,6 +32,7 @@ export default function WeeklyView({
   onDayClick,
   onDeleteEvent,
   onEditEvent,
+  onToggleComplete,
   onEventDrop,
   dragOverDate,
   dragOverTime: _dragOverTime, // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -122,7 +127,18 @@ export default function WeeklyView({
   return (
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
       {/* Header with day names */}
-      <div className="grid grid-cols-[80px_repeat(7,1fr)] border-b border-gray-200">
+      <motion.div
+        className="grid grid-cols-[80px_repeat(7,1fr)] border-b border-gray-200"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          visible: {
+            transition: {
+              staggerChildren: 0.01
+            }
+          }
+        }}
+      >
         <div className="bg-gray-50" /> {/* Empty corner */}
         {weekDays.map((date, index) => {
           const today = isToday(date);
@@ -130,8 +146,12 @@ export default function WeeklyView({
           const holiday = isHoliday(dateKey);
           const holidayName = getHolidayName(dateKey);
           return (
-            <div
+            <motion.div
               key={index}
+              variants={{
+                hidden: { opacity: 0, y: 10 },
+                visible: { opacity: 1, y: 0 }
+              }}
               className={`p-3 text-center border-l border-gray-200 ${
                 holiday ? 'border-t-3 border-t-red-500' : ''
               }`}
@@ -149,10 +169,10 @@ export default function WeeklyView({
               >
                 {date.getDate()}
               </p>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Time grid */}
       <div className="grid grid-cols-[80px_repeat(7,1fr)] relative">
@@ -195,18 +215,28 @@ export default function WeeklyView({
               ))}
 
               {/* Drop preview indicator */}
-              {dropPreview && dropPreview.date === dateKey && (
-                <div
-                  className="absolute left-0 right-0 h-1 bg-blue-500 z-10 pointer-events-none"
-                  style={{
-                    top: `${((dropPreview.hour - 6) * 60 + dropPreview.minute) / (16 * 60) * 100}%`,
-                  }}
-                >
-                  <div className="absolute -top-3 left-2 bg-blue-500 text-white text-xs px-2 py-0.5 rounded whitespace-nowrap">
-                    {`${String(dropPreview.hour).padStart(2, '0')}:${String(dropPreview.minute).padStart(2, '0')}`}
-                  </div>
-                </div>
-              )}
+              <AnimatePresence>
+                {dropPreview && dropPreview.date === dateKey && (
+                  <motion.div
+                    initial={{ opacity: 0, scaleY: 0 }}
+                    animate={{ opacity: 1, scaleY: 1 }}
+                    exit={{ opacity: 0, scaleY: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-0 right-0 h-1 bg-blue-500 z-10 pointer-events-none"
+                    style={{
+                      top: `${((dropPreview.hour - 6) * 60 + dropPreview.minute) / (16 * 60) * 100}%`,
+                    }}
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="absolute -top-3 left-2 bg-blue-500 text-white text-xs px-2 py-0.5 rounded whitespace-nowrap"
+                    >
+                      {`${String(dropPreview.hour).padStart(2, '0')}:${String(dropPreview.minute).padStart(2, '0')}`}
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Timed events (positioned absolutely) */}
               {timedEvents.map(event => {
@@ -233,6 +263,7 @@ export default function WeeklyView({
                       event={event}
                       onDelete={onDeleteEvent}
                       onEdit={onEditEvent}
+                      onToggleComplete={onToggleComplete}
                       onDragStart={onEventDragStart}
                       onDragEnd={onEventDragEnd}
                       isDragging={draggedEvent?.id === event.id}

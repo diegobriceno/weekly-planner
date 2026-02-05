@@ -135,6 +135,7 @@ export default function MonthlyPlanner() {
     input: {
       name: string;
       category: Category;
+      date?: string;
       startTime?: string;
       endTime?: string;
       recurrence?: RecurrenceRule;
@@ -142,12 +143,12 @@ export default function MonthlyPlanner() {
     }
   ) => {
     try {
-      const { name, category, startTime, endTime, recurrence, endDate } = input;
+      const { name, category, date, startTime, endTime, recurrence, endDate } = input;
       if (editingEvent) {
         const targetId = editingEvent.seriesId || editingEvent.id;
 
         // Update recurring series vs one-off event via API
-        await updateEventApi(targetId, { name, category, startTime, endTime, recurrence, endDate });
+        await updateEventApi(targetId, { name, category, date, startTime, endTime, recurrence, endDate });
 
         // Update local state (optimistic)
         if (editingEvent.seriesId) {
@@ -168,10 +169,26 @@ export default function MonthlyPlanner() {
             ),
           }));
         } else {
-          setStoredEvents((prev) => ({
-            ...prev,
-            byDate: updateEventInMonth(prev.byDate, targetId, { name, category, startTime, endTime }),
-          }));
+          // For one-off events, handle date changes
+          if (date && date !== editingEvent.date) {
+            // Date changed - move event to new date
+            setStoredEvents((prev) => ({
+              ...prev,
+              byDate: moveEventToNewDate(
+                prev.byDate,
+                targetId,
+                date,
+                startTime,
+                endTime
+              ),
+            }));
+          } else {
+            // Date unchanged - just update properties
+            setStoredEvents((prev) => ({
+              ...prev,
+              byDate: updateEventInMonth(prev.byDate, targetId, { name, category, startTime, endTime }),
+            }));
+          }
         }
         setEditingEvent(null);
       } else if (selectedDate) {
@@ -295,6 +312,42 @@ export default function MonthlyPlanner() {
     }
   };
 
+  const handleToggleComplete = async (eventId: string) => {
+    try {
+      // Find the event to toggle
+      let eventToToggle: Event | null = null;
+      for (const dateKey in storedEvents.byDate) {
+        const event = storedEvents.byDate[dateKey].find((e) => e.id === eventId);
+        if (event) {
+          eventToToggle = event;
+          break;
+        }
+      }
+
+      if (!eventToToggle) return;
+
+      const newCompletedState = !eventToToggle.completed;
+
+      // Update via API
+      await updateEventApi(eventId, { completed: newCompletedState });
+
+      // Update local state (optimistic)
+      setStoredEvents((prev) => {
+        const updatedMonth: typeof prev.byDate = {};
+        Object.keys(prev.byDate).forEach((date) => {
+          updatedMonth[date] = prev.byDate[date].map((event) =>
+            event.id === eventId
+              ? { ...event, completed: newCompletedState }
+              : event
+          );
+        });
+        return { ...prev, byDate: updatedMonth };
+      });
+    } catch (error) {
+      console.error('Error toggling event completion:', error);
+    }
+  };
+
   const handleCloseModal = () => {
     setModalOpen(false);
     setEditingEvent(null);
@@ -387,6 +440,7 @@ export default function MonthlyPlanner() {
             onDayClick={handleDayClick}
             onDeleteEvent={handleDeleteEvent}
             onEditEvent={handleEditEvent}
+            onToggleComplete={handleToggleComplete}
             onEventDrop={handleEventDrop}
             dragOverDate={dragOverDate}
             onEventDragStart={setDraggedEvent}
@@ -401,6 +455,7 @@ export default function MonthlyPlanner() {
             onDayClick={handleDayClick}
             onDeleteEvent={handleDeleteEvent}
             onEditEvent={handleEditEvent}
+            onToggleComplete={handleToggleComplete}
             onEventDrop={handleEventDrop}
             dragOverDate={dragOverDate}
             dragOverTime={dragOverTime}

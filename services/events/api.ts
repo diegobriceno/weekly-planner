@@ -38,6 +38,7 @@ export async function updateEventApi(
     date?: string;
     startTime?: string;
     endTime?: string;
+    completed?: boolean;
     recurrence?: RecurrenceRule;
     endDate?: string;
   }
