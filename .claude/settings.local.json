@@ -10,7 +10,19 @@
       "Bash(npm install lucide-react)",
       "Bash(tree:*)",
       "Bash(npm install:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "Bash(npm uninstall:*)",
+      "Bash(curl:*)",
+      "mcp__supabase__list_organizations",
+      "mcp__supabase__list_projects",
+      "mcp__supabase__list_tables",
+      "mcp__supabase__list_extensions",
+      "mcp__supabase__get_project_url",
+      "mcp__supabase__execute_sql",
+      "mcp__supabase__get_publishable_keys",
+      "mcp__supabase__get_project"
     ]
   }
 }

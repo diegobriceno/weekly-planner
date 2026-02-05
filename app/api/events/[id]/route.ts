@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readEvents, writeEvents } from '@/lib/eventStorage';
+import {
+  readEvents,
+  updateEvent,
+  deleteEvent,
+  updateRecurringEvent,
+  deleteRecurringEvent
+} from '@/lib/eventStorage';
 import { Category, RecurrenceRule } from '@/types/event';
 
 /**
@@ -23,95 +29,46 @@ export async function PUT(
       endDate?: string;
     };
 
-    // Read existing events
+    // Check if this is a recurring event
     const events = await readEvents();
+    const isRecurring = events.recurring.some((r) => r.id === id);
 
-    // Update recurring series if it exists
-    const recurringIndex = events.recurring.findIndex((r) => r.id === id);
-    if (recurringIndex !== -1) {
-      events.recurring[recurringIndex] = {
-        ...events.recurring[recurringIndex],
-        ...(name !== undefined ? { name } : {}),
-        ...(category !== undefined ? { category: category as Category } : {}),
-        ...(startTime !== undefined ? { startTime } : {}),
-        ...(endTime !== undefined ? { endTime } : {}),
-        ...(recurrence !== undefined ? { recurrence } : {}),
-        ...(endDate !== undefined ? { endDate } : {}),
-      };
-      await writeEvents(events);
+    if (isRecurring) {
+      // Update recurring series
+      const updates: Parameters<typeof updateRecurringEvent>[1] = {};
+      if (name !== undefined) updates.name = name;
+      if (category !== undefined) updates.category = category as Category;
+      if (startTime !== undefined) updates.startTime = startTime;
+      if (endTime !== undefined) updates.endTime = endTime;
+      if (recurrence !== undefined) updates.recurrence = recurrence;
+      if (endDate !== undefined) updates.endDate = endDate;
+
+      await updateRecurringEvent(id, updates);
       return NextResponse.json({ success: true });
     }
 
-    // Handle date changes (moving event to a different date)
-    let found = false;
-    if (date !== undefined) {
-      // Find current date of the event
-      let currentDate: string | null = null;
-      for (const dateKey in events.byDate) {
-        if (events.byDate[dateKey].find(e => e.id === id)) {
-          currentDate = dateKey;
-          break;
-        }
-      }
+    // Update one-off event
+    const isOneOff = Object.values(events.byDate).some(dateEvents =>
+      dateEvents.some(e => e.id === id)
+    );
 
-      if (currentDate && currentDate !== date) {
-        // Move event from old date to new date
-        const event = events.byDate[currentDate].find(e => e.id === id);
-        if (event) {
-          // Remove from old date
-          events.byDate[currentDate] = events.byDate[currentDate].filter(e => e.id !== id);
-          if (events.byDate[currentDate].length === 0) {
-            delete events.byDate[currentDate];
-          }
+    if (isOneOff) {
+      const updates: Parameters<typeof updateEvent>[1] = {};
+      if (name !== undefined) updates.name = name;
+      if (category !== undefined) updates.category = category as Category;
+      if (date !== undefined) updates.date = date;
+      if (startTime !== undefined) updates.startTime = startTime;
+      if (endTime !== undefined) updates.endTime = endTime;
+      if (completed !== undefined) updates.completed = completed;
 
-          // Update and add to new date
-          const updatedEvent = {
-            ...event,
-            date,
-            ...(name !== undefined ? { name } : {}),
-            ...(category !== undefined ? { category: category as Category } : {}),
-            ...(startTime !== undefined ? { startTime } : {}),
-            ...(endTime !== undefined ? { endTime } : {}),
-            ...(completed !== undefined ? { completed } : {}),
-          };
-
-          if (!events.byDate[date]) events.byDate[date] = [];
-          events.byDate[date].push(updatedEvent);
-          found = true;
-        }
-      }
+      await updateEvent(id, updates);
+      return NextResponse.json({ success: true });
     }
 
-    // Find and update the event (if not already updated via date change)
-    if (!found) {
-      for (const dateKey in events.byDate) {
-        const eventIndex = events.byDate[dateKey].findIndex((event) => event.id === id);
-        if (eventIndex !== -1) {
-          events.byDate[dateKey][eventIndex] = {
-            ...events.byDate[dateKey][eventIndex],
-            ...(name !== undefined ? { name } : {}),
-            ...(category !== undefined ? { category: category as Category } : {}),
-            ...(startTime !== undefined ? { startTime } : {}),
-            ...(endTime !== undefined ? { endTime } : {}),
-            ...(completed !== undefined ? { completed } : {}),
-          };
-          found = true;
-          break;
-        }
-      }
-    }
-
-    if (!found) {
-      return NextResponse.json(
-        { error: 'Event not found' },
-        { status: 404 }
-      );
-    }
-
-    // Write back to file
-    await writeEvents(events);
-
-    return NextResponse.json({ success: true });
+    return NextResponse.json(
+      { error: 'Event not found' },
+      { status: 404 }
+    );
   } catch (error) {
     console.error('Error updating event:', error);
     return NextResponse.json(
@@ -131,43 +88,29 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    // Read existing events
+    // Check if this is a recurring event
     const events = await readEvents();
+    const isRecurring = events.recurring.some((r) => r.id === id);
 
-    // Delete recurring series if it exists
-    const before = events.recurring.length;
-    events.recurring = events.recurring.filter((r) => r.id !== id);
-    if (events.recurring.length !== before) {
-      await writeEvents(events);
+    if (isRecurring) {
+      await deleteRecurringEvent(id);
       return NextResponse.json({ success: true });
     }
 
-    // Find and delete the event
-    let found = false;
-    for (const date in events.byDate) {
-      const eventIndex = events.byDate[date].findIndex((event) => event.id === id);
-      if (eventIndex !== -1) {
-        events.byDate[date].splice(eventIndex, 1);
-        // Remove the date key if no events left
-        if (events.byDate[date].length === 0) {
-          delete events.byDate[date];
-        }
-        found = true;
-        break;
-      }
+    // Check if this is a one-off event
+    const isOneOff = Object.values(events.byDate).some(dateEvents =>
+      dateEvents.some(e => e.id === id)
+    );
+
+    if (isOneOff) {
+      await deleteEvent(id);
+      return NextResponse.json({ success: true });
     }
 
-    if (!found) {
-      return NextResponse.json(
-        { error: 'Event not found' },
-        { status: 404 }
-      );
-    }
-
-    // Write back to file
-    await writeEvents(events);
-
-    return NextResponse.json({ success: true });
+    return NextResponse.json(
+      { error: 'Event not found' },
+      { status: 404 }
+    );
   } catch (error) {
     console.error('Error deleting event:', error);
     return NextResponse.json(

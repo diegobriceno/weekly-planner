@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readEvents, writeEvents } from '@/lib/eventStorage';
-import { Category, Event, RecurrenceRule, RecurringEvent } from '@/types/event';
+import { readEvents, createEvent, createRecurringEvent } from '@/lib/eventStorage';
+import { Category, RecurrenceRule } from '@/types/event';
 
 /**
  * GET /api/events - Get all events
@@ -42,13 +42,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Read existing events
-    const stored = await readEvents();
-
     // Recurring series
     if (recurrence) {
-      const newRecurring: RecurringEvent = {
-        id: `rec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      const newRecurring = await createRecurringEvent({
         name,
         category: category as Category,
         startTime,
@@ -56,27 +52,19 @@ export async function POST(request: NextRequest) {
         startDate: date,
         endDate,
         recurrence,
-      };
-      stored.recurring.push(newRecurring);
-      await writeEvents(stored);
+      });
       return NextResponse.json(newRecurring, { status: 201 });
     }
 
     // One-off event
-    const newEvent: Event = {
-      id: `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    const newEvent = await createEvent({
       name,
       category: category as Category,
       date,
       startTime,
       endTime,
-    };
+    });
 
-    if (!stored.byDate[date]) {
-      stored.byDate[date] = [];
-    }
-    stored.byDate[date].push(newEvent);
-    await writeEvents(stored);
     return NextResponse.json(newEvent, { status: 201 });
   } catch (error) {
     console.error('Error creating event:', error);
